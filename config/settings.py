@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tai_khoan',
+    'nhan_su',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +78,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        "OPTIONS": {  # Các tùy chọn bổ sung cho SQLite.
+            "transaction_mode": "IMMEDIATE",  # Giành quyền ghi từ đầu giao dịch.
+            "timeout": 20,
+        }
     }
 }
 
@@ -103,9 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'vi'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
@@ -130,4 +135,14 @@ MAILERS = {
     },
 }
 LOGIN_REDIRECT_URL = '/'      # Sau khi đăng nhập thành công sẽ chuyển về đây
+LOGIN_URL = 'login'  # Các trang cá nhân và đổi mật khẩu dùng trang đăng nhập hiện có.
 LOGOUT_REDIRECT_URL = '/login/'  # Sau khi đăng xuất chuyển về trang login
+
+# Chính sách hiển thị cố định theo mockup Chi tiết hợp đồng.
+NHAN_SU_CHINH_SACH = {  # Dùng chung cho trang quản lý và Hợp đồng của tôi.
+    "nguoi_su_dung": "Công ty TNHH Cake Crush",  # Người sử dụng lao động trong mockup.
+    "dia_diem": "Cake Crush",  # Địa điểm làm việc cố định.
+    "thoi_gian": "48 giờ/tuần · Theo lịch phân công",  # Thời giờ làm việc theo nội dung mẫu.
+    "ngay_phep": "12 ngày phép/năm theo chính sách công ty",  # Nội dung ngày nghỉ và phép năm.
+    "bao_hiem": "BHXH, BHYT, BHTN theo quy định",  # Nội dung bảo hiểm trong mockup.
+}  # Kết thúc chính sách dùng chung.
