@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tai_khoan',
     'nhan_su',
+    'dao_tao',
 ]
 
 MIDDLEWARE = [
