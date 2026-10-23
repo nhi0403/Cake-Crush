@@ -813,7 +813,8 @@
     border-bottom: none;
 }
 
-.dt-search-item:hover {
+.dt-search-item:hover,
+.dt-search-item.is-focused {
     background: #fff4f8;
     color: #df3477;
     font-weight: 600;
