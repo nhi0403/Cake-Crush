@@ -87,15 +87,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database - Cloudflare D1 (qua HTTP API)
+# Database - SQLite
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django_d1',
-        'CLOUDFLARE_ACCOUNT_ID':  os.environ.get('CF_ACCOUNT_ID', ''),
-        'CLOUDFLARE_DATABASE_ID': os.environ.get('CF_D1_DATABASE_ID', ''),
-        'CLOUDFLARE_TOKEN':       os.environ.get('CF_API_TOKEN', ''),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
