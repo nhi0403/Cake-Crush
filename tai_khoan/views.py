@@ -13,12 +13,10 @@ try:
     from nhan_su.models import NhanVien, BoPhan, HopDong
 except Exception:
     NhanVien = BoPhan = HopDong = None
-
 try:
     from cham_cong.models import ChamCong, DonNghiPhep
 except Exception:
     ChamCong = DonNghiPhep = None
-
 try:
     from dao_tao.models import Nv_DaoTao
 except Exception:
