@@ -10,7 +10,7 @@ from django.utils import timezone
 # 1. IMPORT AN TOÀN CÁC MODEL THEO TÊN LỚP THỰC TẾ
 # ------------------------------------------------------------------------------
 try:
-    from nhan_su.models import NhanVien, BoPhan, HopDong
+    from nhan_su.models import NhanVien, PhongBan as BoPhan, HopDong
 except Exception:
     NhanVien = BoPhan = HopDong = None
 
@@ -20,12 +20,9 @@ except Exception:
     ChamCong = DonNghiPhep = None
 
 try:
-    from dao_tao.models import Nv_DaoTao
+    from dao_tao.models import PhanCongDaoTao as Nv_DaoTao
 except Exception:
-    try:
-        from dao_tao.models import NV_DAOTAO as Nv_DaoTao
-    except Exception:
-        Nv_DaoTao = None
+    Nv_DaoTao = None
 
 
 # ------------------------------------------------------------------------------
@@ -232,11 +229,13 @@ def trang_quan_ly(request):
     }
     if Nv_DaoTao:
         try:
-            dao_tao['chua_hoc'] = Nv_DaoTao.objects.filter(trangthai__in=['CHUA_HOC', 'chua_hoc']).count()
-            dao_tao['dang_hoc'] = Nv_DaoTao.objects.filter(trangthai__in=['DANG_HOC', 'dang_hoc']).count()
-            dao_tao['da_hoc'] = Nv_DaoTao.objects.filter(trangthai__in=['DA_HOC', 'da_hoc']).count()
-            dao_tao['dat'] = Nv_DaoTao.objects.filter(ketqua__in=['DAT', 'dat']).count()
-            dao_tao['chua_dat'] = Nv_DaoTao.objects.filter(ketqua__in=['CHUA_DAT', 'chua_dat']).count()
+            fields = [f.name for f in Nv_DaoTao._meta.get_fields()]
+            col_status = 'tiendo' if 'tiendo' in fields else 'trangthai'
+            dao_tao['chua_hoc'] = Nv_DaoTao.objects.filter(**{f"{col_status}__in": ['Chưa hoàn thành', 'CHUA_HOAN_THANH', 'CHUA_HOC', 'chua_hoc']}).count()
+            dao_tao['dang_hoc'] = Nv_DaoTao.objects.filter(**{f"{col_status}__in": ['Đang thực hiện', 'DANG_THUC_HIEN', 'DANG_HOC', 'dang_hoc']}).count()
+            dao_tao['da_hoc'] = Nv_DaoTao.objects.filter(**{f"{col_status}__in": ['Đã hoàn thành', 'DA_HOAN_THANH', 'DA_HOC', 'da_hoc']}).count()
+            dao_tao['dat'] = Nv_DaoTao.objects.filter(ketqua__in=['Đạt', 'DAT', 'dat']).count()
+            dao_tao['chua_dat'] = Nv_DaoTao.objects.filter(ketqua__in=['Chưa đạt', 'CHUA_DAT', 'chua_dat']).count()
         except Exception:
             pass
 
