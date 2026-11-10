@@ -178,11 +178,11 @@ LOGOUT_REDIRECT_URL = '/login/'  # Sau khi dang xuat chuyen ve trang login
 
 # Chinh sach hien thi co dinh theo mockup Chi tiet hop dong.
 NHAN_SU_CHINH_SACH = {  # Dung chung cho trang quan ly va Hop dong cua toi.
-    "nguoi_su_dung": "Cong ty TNHH Cake Crush",  # Nguoi su dung lao dong trong mockup.
+    "nguoi_su_dung": "Công ty TNHH Cake Crush",  # Nguoi su dung lao dong trong mockup.
     "dia_diem": "Cake Crush",                     # Dia diem lam viec co dinh.
-    "thoi_gian": "48 gio/tuan · Theo lich phan cong",  # Thoi gio lam viec theo noi dung mau.
-    "ngay_phep": "12 ngay phep/nam theo chinh sach cong ty",  # Noi dung ngay nghi va phep nam.
-    "bao_hiem": "BHXH, BHYT, BHTN theo quy dinh",  # Noi dung bao hiem trong mockup.
+    "thoi_gian": "48 giờ/tuần · Theo lịch phân công",  # Thoi gio lam viec theo noi dung mau.
+    "ngay_phep": "12 ngày phép/năm theo chính sách công ty",  # Noi dung ngay nghi va phep nam.
+    "bao_hiem": "BHXH, BHYT, BHTN theo quy định",  # Noi dung bao hiem trong mockup.
 }  # Ket thuc chinh sach dung chung.
 
 # Ca lam viec va quy phep dung cho phan he Cham cong (doi tai day, khong sua code).

@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.db.models import Q
 
 # ------------------------------------------------------------------------------
 # 1. IMPORT AN TOÀN CÁC MODEL THEO TÊN LỚP THỰC TẾ
@@ -73,6 +74,14 @@ def trang_quan_ly(request):
 
     today = timezone.localdate()
 
+    # Nhận tiêu chí lọc theo bộ phận
+    bo_phan_loc = request.GET.get('bo_phan', '').strip()
+    bo_phan_obj = None
+    if bo_phan_loc and bo_phan_loc != 'all' and BoPhan:
+        bo_phan_obj = BoPhan.objects.filter(
+            Q(maphongban=bo_phan_loc) | Q(tenphongban=bo_phan_loc)
+        ).first()
+
     # --- A. Thống kê Nhân viên (NhanVien) ---
     tong_nhan_vien = 0
     dang_lam = 0
@@ -80,16 +89,20 @@ def trang_quan_ly(request):
     if NhanVien:
         try:
             fields = [f.name for f in NhanVien._meta.get_fields()]
+            qs_nv = NhanVien.objects.all()
+            if bo_phan_obj and 'maphong' in fields:
+                qs_nv = qs_nv.filter(maphong=bo_phan_obj)
+
             if 'trangthai' in fields:
-                dang_lam = NhanVien.objects.filter(trangthai=True).count()
-                da_nghi = NhanVien.objects.filter(trangthai=False).count()
+                dang_lam = qs_nv.filter(trangthai=True).count()
+                da_nghi = qs_nv.filter(trangthai=False).count()
                 tong_nhan_vien = dang_lam
             elif 'is_active' in fields:
-                dang_lam = NhanVien.objects.filter(is_active=True).count()
-                da_nghi = NhanVien.objects.filter(is_active=False).count()
+                dang_lam = qs_nv.filter(is_active=True).count()
+                da_nghi = qs_nv.filter(is_active=False).count()
                 tong_nhan_vien = dang_lam
             else:
-                tong_nhan_vien = NhanVien.objects.count()
+                tong_nhan_vien = qs_nv.count()
                 dang_lam = tong_nhan_vien
         except Exception:
             tong_nhan_vien = dang_lam = da_nghi = 0
@@ -103,6 +116,9 @@ def trang_quan_ly(request):
             date_col = 'ngaychamcong' if 'ngaychamcong' in cc_fields else 'ngay'
 
             qs_cc = ChamCong.objects.filter(**{date_col: today})
+            if bo_phan_obj and 'manv' in cc_fields:
+                qs_cc = qs_cc.filter(manv__maphong=bo_phan_obj)
+
             cham_cong_hom_nay = qs_cc.count()
 
             if 'trangthai' in cc_fields:
@@ -127,9 +143,12 @@ def trang_quan_ly(request):
     don_nghi_tu_choi = 0
     if DonNghiPhep:
         try:
-            don_nghi_cho_duyet = DonNghiPhep.objects.filter(trangthai__in=['CHODUYET', 'cho_duyet', 'Chờ duyệt']).count()
-            don_nghi_da_duyet = DonNghiPhep.objects.filter(trangthai__in=['DADUYET', 'da_duyet', 'Đã duyệt']).count()
-            don_nghi_tu_choi = DonNghiPhep.objects.filter(trangthai__in=['TUCHOI', 'tu_choi', 'Từ chối']).count()
+            qs_dnp = DonNghiPhep.objects.all()
+            if bo_phan_obj:
+                qs_dnp = qs_dnp.filter(manv__maphong=bo_phan_obj)
+            don_nghi_cho_duyet = qs_dnp.filter(trangthai__in=['CHODUYET', 'cho_duyet', 'Chờ duyệt']).count()
+            don_nghi_da_duyet = qs_dnp.filter(trangthai__in=['DADUYET', 'da_duyet', 'Đã duyệt']).count()
+            don_nghi_tu_choi = qs_dnp.filter(trangthai__in=['TUCHOI', 'tu_choi', 'Từ chối']).count()
         except Exception:
             pass
 
@@ -147,6 +166,8 @@ def trang_quan_ly(request):
                 f"{exp_col}__gte": today,
                 f"{exp_col}__lte": ngay_gioi_han
             })
+            if bo_phan_obj:
+                qs_hd = qs_hd.filter(manv__maphong=bo_phan_obj)
             hop_dong_sap_het_han = qs_hd.count()
 
             dict_loai_hd = {
@@ -177,12 +198,23 @@ def trang_quan_ly(request):
 
     # --- E. Thống kê theo Bộ phận (BoPhan & NhanVien) ---
     bo_phan_list = []
+    tong_toan_cty = 0
+    if NhanVien:
+        try:
+            fields = [f.name for f in NhanVien._meta.get_fields()]
+            if 'trangthai' in fields:
+                tong_toan_cty = NhanVien.objects.filter(trangthai=True).count()
+            else:
+                tong_toan_cty = NhanVien.objects.count()
+        except Exception:
+            tong_toan_cty = 0
+
     if BoPhan and NhanVien:
         try:
             nv_fields = [f.name for f in NhanVien._meta.get_fields()]
             bp_fk = 'maphong' if 'maphong' in nv_fields else 'bo_phan'
 
-            for bp in BoPhan.objects.all():
+            for bp in BoPhan.objects.all().order_by('tenphongban'):
                 query = {bp_fk: bp}
                 if 'trangthai' in nv_fields:
                     query['trangthai'] = True
@@ -190,34 +222,19 @@ def trang_quan_ly(request):
                     query['is_active'] = True
 
                 count_nv = NhanVien.objects.filter(**query).count()
-                pct = int((count_nv / tong_nhan_vien) * 100) if tong_nhan_vien > 0 else 0
+                pct = int((count_nv / tong_toan_cty) * 100) if tong_toan_cty > 0 else 0
                 ten_bp = getattr(bp, 'tenphongban', getattr(bp, 'ten_bo_phan', getattr(bp, 'ten', str(bp))))
+                ma_bp = getattr(bp, 'maphongban', getattr(bp, 'pk', str(bp)))
 
                 bo_phan_list.append({
+                    'ma': ma_bp,
                     'ten': ten_bp,
                     'so_luong': count_nv,
-                    'phan_tram': pct
+                    'phan_tram': pct,
+                    'is_selected': bool(bo_phan_obj and (bp.pk == bo_phan_obj.pk or ma_bp == bo_phan_loc or ten_bp == bo_phan_loc))
                 })
         except Exception:
             pass
-
-    # Đảm bảo luôn có đủ 5 bộ phận chuẩn của Cake Crush
-    cac_bo_phan_chuan = ['Bếp bánh', 'Bán hàng', 'Thu ngân', 'Pha chế', 'Kho vận']
-    ten_hien_co = [b['ten'] for b in bo_phan_list]
-    for ten in cac_bo_phan_chuan:
-        if ten not in ten_hien_co:
-            c = 0
-            if NhanVien:
-                try:
-                    c = NhanVien.objects.filter(chucvu__icontains=ten).count()
-                except Exception:
-                    c = 0
-            pct = int((c / tong_nhan_vien) * 100) if tong_nhan_vien > 0 else 0
-            bo_phan_list.append({
-                'ten': ten,
-                'so_luong': c,
-                'phan_tram': pct
-            })
 
     # --- F. Tình trạng Đào tạo (Nv_DaoTao) ---
     dao_tao = {
@@ -231,11 +248,15 @@ def trang_quan_ly(request):
         try:
             fields = [f.name for f in Nv_DaoTao._meta.get_fields()]
             col_status = 'tiendo' if 'tiendo' in fields else 'trangthai'
-            dao_tao['chua_hoc'] = Nv_DaoTao.objects.filter(**{f"{col_status}__in": ['Chưa hoàn thành', 'CHUA_HOAN_THANH', 'CHUA_HOC', 'chua_hoc']}).count()
-            dao_tao['dang_hoc'] = Nv_DaoTao.objects.filter(**{f"{col_status}__in": ['Đang thực hiện', 'DANG_THUC_HIEN', 'DANG_HOC', 'dang_hoc']}).count()
-            dao_tao['da_hoc'] = Nv_DaoTao.objects.filter(**{f"{col_status}__in": ['Đã hoàn thành', 'DA_HOAN_THANH', 'DA_HOC', 'da_hoc']}).count()
-            dao_tao['dat'] = Nv_DaoTao.objects.filter(ketqua__in=['Đạt', 'DAT', 'dat']).count()
-            dao_tao['chua_dat'] = Nv_DaoTao.objects.filter(ketqua__in=['Chưa đạt', 'CHUA_DAT', 'chua_dat']).count()
+            qs_dt = Nv_DaoTao.objects.all()
+            if bo_phan_obj and 'nhanvien' in fields:
+                qs_dt = qs_dt.filter(nhanvien__maphong=bo_phan_obj)
+
+            dao_tao['chua_hoc'] = qs_dt.filter(**{f"{col_status}__in": ['Chưa hoàn thành', 'CHUA_HOAN_THANH', 'CHUA_HOC', 'chua_hoc']}).count()
+            dao_tao['dang_hoc'] = qs_dt.filter(**{f"{col_status}__in": ['Đang thực hiện', 'DANG_THUC_HIEN', 'DANG_HOC', 'dang_hoc']}).count()
+            dao_tao['da_hoc'] = qs_dt.filter(**{f"{col_status}__in": ['Đã hoàn thành', 'DA_HOAN_THANH', 'DA_HOC', 'da_hoc']}).count()
+            dao_tao['dat'] = qs_dt.filter(ketqua__in=['Đạt', 'DAT', 'dat']).count()
+            dao_tao['chua_dat'] = qs_dt.filter(ketqua__in=['Chưa đạt', 'CHUA_DAT', 'chua_dat']).count()
         except Exception:
             pass
 
@@ -250,6 +271,8 @@ def trang_quan_ly(request):
         'hop_dong_sap_het_han': hop_dong_sap_het_han,
         'diem_danh': {'co_mat': co_mat, 'di_muon': di_muon, 'vang_mat': vang_mat},
         'bo_phan': bo_phan_list,
+        'bo_phan_duoc_chon': bo_phan_loc,
+        'bo_phan_obj': bo_phan_obj,
         'danh_sach_hop_dong': danh_sach_hop_dong,
         'dao_tao': dao_tao,
     }

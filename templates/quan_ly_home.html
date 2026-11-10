@@ -268,7 +268,8 @@
   }
 
   .dept-name {
-    width: 85px;
+    width: 140px;
+    min-width: 110px;
     color: #495057;
     white-space: nowrap;
     overflow: hidden;
@@ -398,19 +399,13 @@
     </div>
 
     <div class="dash-filters-right">
-      <!-- Bộ lọc bộ phận: Luôn hiển thị đủ 5 bộ phận thực tế -->
+      <!-- Bộ lọc bộ phận: Dữ liệu chuẩn xác từ CSDL -->
       <div class="filter-group">
         <label>Bộ phận</label>
         <select class="filter-select" id="deptFilter" onchange="filterDepartment(this.value)">
-          <option value="all">Tất cả bộ phận</option>
+          <option value="all" {% if not bo_phan_duoc_chon or bo_phan_duoc_chon == 'all' %}selected{% endif %}>Tất cả bộ phận</option>
           {% for bp in bo_phan %}
-            <option value="{{ bp.ten }}">{{ bp.ten }}</option>
-          {% empty %}
-            <option value="Bếp bánh">Bếp bánh</option>
-            <option value="Bán hàng">Bán hàng</option>
-            <option value="Thu ngân">Thu ngân</option>
-            <option value="Pha chế">Pha chế</option>
-            <option value="Kho vận">Kho vận</option>
+            <option value="{{ bp.ma }}" {% if bo_phan_duoc_chon == bp.ma or bo_phan_duoc_chon == bp.ten %}selected{% endif %}>{{ bp.ten }}</option>
           {% endfor %}
         </select>
       </div>
@@ -484,7 +479,7 @@
       </div>
       <div style="font-size: 11px; color: var(--cc-text-muted); margin-bottom: 12px;">Theo bộ phận</div>
       {% for bp in bo_phan %}
-      <div class="progress-item" data-dept="{{ bp.ten }}">
+      <div class="progress-item" data-dept="{{ bp.ma }}" data-dept-name="{{ bp.ten }}" style="{% if bo_phan_obj and not bp.is_selected %}display: none;{% endif %}">
         <span class="dept-name" title="{{ bp.ten }}">{{ bp.ten }}</span>
         <div class="bar-bg">
           <div class="bar-fill" style="width: {{ bp.phan_tram|default:'0' }}%;"></div>
@@ -492,11 +487,7 @@
         <span class="dept-count">{{ bp.so_luong|default:"0" }}</span>
       </div>
       {% empty %}
-      <div class="progress-item" data-dept="Bếp bánh"><span class="dept-name">Bếp bánh</span><div class="bar-bg"><div class="bar-fill" style="width: 0%;"></div></div><span class="dept-count">0</span></div>
-      <div class="progress-item" data-dept="Bán hàng"><span class="dept-name">Bán hàng</span><div class="bar-bg"><div class="bar-fill" style="width: 0%;"></div></div><span class="dept-count">0</span></div>
-      <div class="progress-item" data-dept="Thu ngân"><span class="dept-name">Thu ngân</span><div class="bar-bg"><div class="bar-fill" style="width: 0%;"></div></div><span class="dept-count">0</span></div>
-      <div class="progress-item" data-dept="Pha chế"><span class="dept-name">Pha chế</span><div class="bar-bg"><div class="bar-fill" style="width: 0%;"></div></div><span class="dept-count">0</span></div>
-      <div class="progress-item" data-dept="Kho vận"><span class="dept-name">Kho vận</span><div class="bar-bg"><div class="bar-fill" style="width: 0%;"></div></div><span class="dept-count">0</span></div>
+      <div style="text-align: center; color: var(--cc-text-muted); font-size: 12px; padding: 12px 0;">Chưa có dữ liệu bộ phận</div>
       {% endfor %}
     </div>
 
@@ -655,16 +646,15 @@
     }
   });
 
-  // Lọc hiển thị bộ phận theo tên
-  function filterDepartment(deptName) {
-    var items = document.querySelectorAll('.progress-item');
-    items.forEach(function(item) {
-      if (deptName === 'all' || item.getAttribute('data-dept') === deptName) {
-        item.style.display = 'flex';
-      } else {
-        item.style.display = 'none';
-      }
-    });
+  // Lọc hiển thị bộ phận theo giá trị người dùng chọn: cập nhật toàn bộ Dashboard
+  function filterDepartment(deptVal) {
+    var url = new URL(window.location.href);
+    if (!deptVal || deptVal === 'all') {
+      url.searchParams.delete('bo_phan');
+    } else {
+      url.searchParams.set('bo_phan', deptVal);
+    }
+    window.location.href = url.toString();
   }
 </script>
 {% endblock %}
