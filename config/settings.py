@@ -87,17 +87,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database - Cloudflare D1 (qua HTTP API)
-# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
+# Database: Mặc định dùng SQLite local (db.sqlite3) để chạy ổn định trên máy.
+# Nếu cần kết nối Cloudflare D1 khi deploy, đặt USE_D1=True trong .env
+USE_D1 = os.environ.get('USE_D1', 'False').lower() in ('true', '1', 'yes')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django_d1',
-        'CLOUDFLARE_ACCOUNT_ID':  os.environ.get('CF_ACCOUNT_ID', ''),
-        'CLOUDFLARE_DATABASE_ID': os.environ.get('CF_D1_DATABASE_ID', ''),
-        'CLOUDFLARE_TOKEN':       os.environ.get('CF_API_TOKEN', ''),
+if USE_D1 and os.environ.get('CF_API_TOKEN'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_d1',
+            'CLOUDFLARE_ACCOUNT_ID':  os.environ.get('CF_ACCOUNT_ID', ''),
+            'CLOUDFLARE_DATABASE_ID': os.environ.get('CF_D1_DATABASE_ID', ''),
+            'CLOUDFLARE_TOKEN':       os.environ.get('CF_API_TOKEN', ''),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -145,7 +154,11 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
     },
 }
 

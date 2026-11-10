@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi
+web: python manage.py migrate && python seed_data.py && python manage.py collectstatic --noinput && gunicorn config.wsgi
