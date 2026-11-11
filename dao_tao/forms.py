@@ -79,6 +79,12 @@ class KhoaDaoTaoForm(forms.ModelForm):
         model = KhoaDaoTao
         fields = ["makhoa", "tenkhoa", "noidung", "ngaybatdau", "ngayketthuc", "trangthai"]
 
+    def clean_makhoa(self):
+        makhoa = (self.cleaned_data.get("makhoa") or "").strip()
+        if makhoa and "/" in makhoa:
+            raise ValidationError("Mã khóa đào tạo không được chứa ký tự '/'.")
+        return makhoa
+
     def clean(self):
         cleaned_data = super().clean()
         ngaybatdau = cleaned_data.get("ngaybatdau")

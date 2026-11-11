@@ -27,6 +27,9 @@
             <span>Phân công nhân viên</span>
         </div>
 
+        {% if form.non_field_errors %}
+            <div class="dt-error-text" style="margin-bottom: 14px;">{{ form.non_field_errors.0 }}</div>
+        {% endif %}
         <div class="dt-form-row dt-cols-1">
             <!-- Chọn nhân viên -->
             <div>
@@ -88,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectKhoa = document.getElementById("selectKhoa");
     const boxChuaChon = document.getElementById("boxChuaChonNV");
     const btnSubmit = document.getElementById("btnSubmitPhanCong");
-    const preselectedKhoa = "{{ khoa_id_param|default:'' }}";
+    const preselectedKhoa = "{{ form.khoadaotao.value|default:khoa_id_param|default:''|escapejs }}";
 
     // Khởi tạo dạng search cho cả hai ô
     initSearchableSelect(selectNV, "Tìm kiếm nhân viên theo tên hoặc mã...");

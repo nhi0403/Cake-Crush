@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -84,7 +85,18 @@ def tao_khoa(request):
                 khoa.makhoa = services.tao_ma_khoa()
             if not form.cleaned_data.get("trangthai"):
                 khoa.trangthai = khoa.tinh_trang_thai_tu_dong()
-            khoa.save()
+            try:
+                khoa.save(force_insert=True)
+            except IntegrityError:
+                form.add_error("makhoa", "Mã khóa đào tạo đã tồn tại. Vui lòng nhập mã khác hoặc thử lại.")
+                return render(
+                    request,
+                    "dao_tao/quan_ly/tao_khoa.html",
+                    {
+                        "form": form,
+                        "tieu_de": "Tạo khóa đào tạo",
+                    },
+                )
             messages.success(request, f"Đã tạo thành công khóa đào tạo {khoa.makhoa} - {khoa.tenkhoa}.")
             return redirect("dao_tao:chi_tiet_khoa", makhoa=khoa.makhoa)
     else:

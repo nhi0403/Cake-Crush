@@ -148,6 +148,40 @@ class DaoTaoViewsTests(TestCase):
         self.assertEqual(res_post.status_code, 302)
         self.assertTrue(KhoaDaoTao.objects.filter(makhoa="DT099").exists())
 
+    def test_quan_ly_tao_khoa_tu_dong_sinh_ma_va_validate_makhoa(self):
+        self.client.login(username="ql_test", password="password123")
+
+        # Để trống mã -> tự sinh DT002 và truy cập được chi tiết khóa
+        res_auto = self.client.post(
+            reverse("dao_tao:tao_khoa"),
+            data={
+                "makhoa": "",
+                "tenkhoa": "Khóa tự sinh mã",
+                "noidung": "Nội dung tự sinh",
+                "ngaybatdau": date.today().strftime("%Y-%m-%d"),
+                "ngayketthuc": (date.today() + timedelta(days=5)).strftime("%Y-%m-%d"),
+                "trangthai": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(res_auto.status_code, 200)
+        self.assertTrue(KhoaDaoTao.objects.filter(makhoa="DT002").exists())
+
+        # Mã chứa '/' -> báo lỗi trên form, không crash NoReverseMatch
+        res_slash = self.client.post(
+            reverse("dao_tao:tao_khoa"),
+            data={
+                "makhoa": "DT/003",
+                "tenkhoa": "Khóa lỗi mã",
+                "noidung": "Nội dung",
+                "ngaybatdau": date.today().strftime("%Y-%m-%d"),
+                "ngayketthuc": (date.today() + timedelta(days=5)).strftime("%Y-%m-%d"),
+                "trangthai": "",
+            },
+        )
+        self.assertEqual(res_slash.status_code, 200)
+        self.assertFalse(KhoaDaoTao.objects.filter(makhoa="DT/003").exists())
+
     def test_quan_ly_cap_nhat_noi_dung(self):
         self.client.login(username="ql_test", password="password123")
         res = self.client.post(
@@ -160,6 +194,17 @@ class DaoTaoViewsTests(TestCase):
 
     def test_quan_ly_phan_cong_nhan_vien(self):
         self.client.login(username="ql_test", password="password123")
+        res_get = self.client.get(f"{reverse('dao_tao:phan_cong_dao_tao')}?khoa={self.khoa.makhoa}")
+        self.assertEqual(res_get.status_code, 200)
+        self.assertContains(res_get, "dao_tao_search.js")
+
+        res_api = self.client.get(
+            reverse("dao_tao:api_khoa_theo_nhan_vien"),
+            {"manv": self.nv_thuong.manv, "loai": "chua_tham_gia"},
+        )
+        self.assertEqual(res_api.status_code, 200)
+        self.assertEqual(res_api.json()["khoa"][0]["makhoa"], self.khoa.makhoa)
+        self.client.login(username="ql_test", password="password123")
         res = self.client.post(
             reverse("dao_tao:phan_cong_dao_tao"),
             data={"nhanvien": self.nv_thuong.manv, "khoadaotao": self.khoa.makhoa},
@@ -167,6 +212,14 @@ class DaoTaoViewsTests(TestCase):
         self.assertEqual(res.status_code, 302)
         self.assertTrue(
             PhanCongDaoTao.objects.filter(nhanvien=self.nv_thuong, khoadaotao=self.khoa).exists()
+        )
+        res_dup = self.client.post(
+            reverse("dao_tao:phan_cong_dao_tao"),
+            data={"nhanvien": self.nv_thuong.manv, "khoadaotao": self.khoa.makhoa},
+        )
+        self.assertEqual(res_dup.status_code, 200)
+        self.assertContains(
+            res_dup, "Nhân viên này đã được phân công"
         )
 
     def test_nhan_vien_xem_va_xac_nhan_hoan_thanh(self):
