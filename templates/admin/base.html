@@ -1,0 +1,550 @@
+{% load i18n static tz %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"vi" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<head>
+<title>{% block title %}{% endblock %}</title>
+<meta name="color-scheme" content="light" />
+<link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" {% csp_nonce_attr %}>
+{% block dark-mode-vars %}
+  <link rel="stylesheet" href="{% static "admin/css/dark_mode.css" %}" {% csp_nonce_attr %}>
+  <script src="{% static "admin/js/theme.js" %}" {% csp_nonce_attr %}></script>
+{% endblock %}
+{% if not is_popup and is_nav_sidebar_enabled %}
+  <link rel="stylesheet" href="{% static "admin/css/nav_sidebar.css" %}" {% csp_nonce_attr %}>
+  <script src="{% static 'admin/js/nav_sidebar.js' %}" defer {% csp_nonce_attr %}></script>
+{% endif %}
+{% block extrastyle %}{% endblock %}
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" {% csp_nonce_attr %}>{% endif %}
+{% block extrahead %}{% endblock %}
+{% block responsive %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}" {% csp_nonce_attr %}>
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl_responsive %}{% static "admin/css/responsive_rtl.css" %}{% endblock %}" {% csp_nonce_attr %}>{% endif %}
+{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+
+<!-- Google Fonts: Plus Jakarta Sans & Font Awesome 6 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- GIAO DIỆN CAKE CRUSH HR ADMIN CHUẨN MÀU HỒNG & GIỮ NGUYÊN TOÀN BỘ CHỨC NĂNG -->
+<style>
+/* 1. Biến CSS Django Admin */
+:root, [data-theme="light"], [data-theme="dark"] {
+    --primary: #c72c5e !important;
+    --secondary: #a01a40 !important;
+    --accent: #f43f5e !important;
+    --primary-fg: #ffffff !important;
+    --body-bg: #faf7f8 !important;
+    --body-fg: #334155 !important;
+    --header-bg: linear-gradient(135deg, #c72c5e 0%, #e13b78 100%) !important;
+    --header-color: #ffffff !important;
+    --header-link-color: #ffffff !important;
+    --breadcrumbs-bg: #fdeaf1 !important;
+    --breadcrumbs-fg: #64748b !important;
+    --breadcrumbs-link-fg: #c72c5e !important;
+    --link-fg: #c72c5e !important;
+    --link-hover-color: #9d174d !important;
+    --hairline-color: #f1e6eb !important;
+    --border-color: #f1e6eb !important;
+    --button-bg: #c72c5e !important;
+    --button-hover-bg: #a01a40 !important;
+    --default-button-bg: #c72c5e !important;
+    --default-button-hover-bg: #a01a40 !important;
+    --selected-row: #fff5f8 !important;
+    --selected-bg: #fdeaf1 !important;
+}
+
+/* 2. Thiết lập phông chữ an toàn (Không làm vỡ Font Awesome) */
+body, p, a, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, h6, label, span {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.fa, .fas, .far, .fa-solid, .fa-regular, .fa-brands, [class*="fa-"] {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+}
+
+body {
+    background-color: #faf7f8 !important;
+    color: #334155 !important;
+}
+
+/* 3. Header Hồng Cake Crush */
+#header, header#header {
+    background: linear-gradient(135deg, #c72c5e 0%, #e13b78 100%) !important;
+    color: #ffffff !important;
+    padding: 12px 28px !important;
+    box-shadow: 0 4px 16px rgba(199, 44, 94, 0.2) !important;
+    border-bottom: none !important;
+}
+
+#header #branding h1, #header h1#site-name {
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    letter-spacing: -0.3px !important;
+}
+
+#header #branding a, #header #branding a:link, #header #branding a:visited {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+#header #user-tools {
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+#header #user-tools strong {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+#header #user-tools a, #header #user-tools button {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    transition: all 0.18s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+}
+
+#header #user-tools a:hover, #header #user-tools button:hover {
+    background: rgba(255, 255, 255, 0.35) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Nút quay về Dashboard */
+.btn-dashboard-link {
+    background: #ffffff !important;
+    color: #c72c5e !important;
+    font-weight: 700 !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-dashboard-link:hover {
+    background: #fdeaf1 !important;
+    color: #a01a40 !important;
+}
+
+/* 4. Breadcrumbs */
+.breadcrumbs, nav ol.breadcrumbs, div.breadcrumbs {
+    background: #fdf2f6 !important;
+    border-bottom: 1px solid #f1e6eb !important;
+    padding: 10px 28px !important;
+    font-size: 12.5px !important;
+    color: #64748b !important;
+}
+
+.breadcrumbs a, nav ol.breadcrumbs a, div.breadcrumbs a {
+    color: #c72c5e !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+.breadcrumbs a:hover, nav ol.breadcrumbs a:hover, div.breadcrumbs a:hover {
+    color: #a01a40 !important;
+    text-decoration: underline !important;
+}
+
+/* 5. Modules Danh sách Apps (Giao diện thẻ đẹp mắt) */
+.module {
+    background: #ffffff !important;
+    border: 1px solid #f1e6eb !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    margin-bottom: 20px !important;
+}
+
+.module caption, .module h2 {
+    background: linear-gradient(135deg, #fdf2f6 0%, #fdeaf1 100%) !important;
+    color: #9d174d !important;
+    padding: 12px 18px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    border-bottom: 1px solid #f1e6eb !important;
+}
+
+.module caption a, .module h2 a {
+    color: #9d174d !important;
+    text-decoration: none !important;
+}
+
+.module table {
+    width: 100% !important;
+}
+
+.module table th, .module table td {
+    padding: 11px 18px !important;
+    font-size: 13px !important;
+    border-bottom: 1px solid #f8fafc !important;
+}
+
+.module table tr:hover {
+    background: #fff5f8 !important;
+}
+
+.module table th a {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+.module table th a:hover {
+    color: #c72c5e !important;
+}
+
+/* Nút Thêm vào / Thay đổi */
+.module .addlink, .module .changelink, .module .viewlink {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.module .addlink {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+
+.module .addlink:hover {
+    background: #10b981 !important;
+    color: #ffffff !important;
+}
+
+.module .changelink {
+    background: #fdeaf1 !important;
+    color: #c72c5e !important;
+    border: 1px solid #fbcfe1 !important;
+}
+
+.module .changelink:hover {
+    background: #c72c5e !important;
+    color: #ffffff !important;
+}
+
+.module .viewlink {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+    border: 1px solid #bae6fd !important;
+}
+
+/* 6. Hoạt động gần đây (Recent Actions) */
+#content-related {
+    background: #ffffff !important;
+    border: 1px solid #f1e6eb !important;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+#content-related .module {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+#content-related h2 {
+    background: #fdf2f6 !important;
+    color: #9d174d !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 12px 18px !important;
+    border-bottom: 1px solid #f1e6eb !important;
+}
+
+#content-related h3 {
+    font-size: 12px !important;
+    color: #64748b !important;
+    padding: 10px 18px 4px 18px !important;
+}
+
+#content-related ul {
+    padding: 0 18px 14px 18px !important;
+}
+
+#content-related p {
+    padding: 10px 18px 16px 18px !important;
+    color: #94a3b8 !important;
+    font-size: 12.5px !important;
+}
+
+/* 7. Nút bấm chính & Nút thêm bản ghi */
+.button, input[type=submit], input[type=button], .submit-row input, 
+a.button, .object-tools a, .object-tools li a {
+    background: #c72c5e !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 8px 18px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(199, 44, 94, 0.22) !important;
+    transition: all 0.18s ease !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, 
+.submit-row input:hover, a.button:hover, .object-tools a:hover, .object-tools li a:hover {
+    background: #a01a40 !important;
+    transform: translateY(-1px) !important;
+    color: #ffffff !important;
+}
+
+/* 8. Bảng dữ liệu Changelist */
+#changelist {
+    background: #ffffff !important;
+    border: 1px solid #f1e6eb !important;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+#changelist-filter {
+    background: #fdfafb !important;
+    border-left: 1px solid #f1e6eb !important;
+}
+
+#changelist-filter h2 {
+    background: #fdeaf1 !important;
+    color: #c72c5e !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    padding: 12px 16px !important;
+    text-transform: uppercase !important;
+}
+
+#changelist-filter li.selected a {
+    color: #c72c5e !important;
+    font-weight: 700 !important;
+}
+
+#changelist table thead th {
+    background: #fdfafb !important;
+    color: #475569 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    padding: 12px 14px !important;
+    border-bottom: 1px solid #f1e6eb !important;
+}
+
+#changelist table tbody tr:hover {
+    background: #fff5f8 !important;
+}
+
+#searchbar {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 20px !important;
+    padding: 7px 16px !important;
+    font-size: 12.5px !important;
+    outline: none !important;
+}
+
+#searchbar:focus {
+    border-color: #c72c5e !important;
+    box-shadow: 0 0 0 3px rgba(199, 44, 94, 0.1) !important;
+}
+
+/* 9. Sidebar trái (Nav Sidebar) */
+#nav-sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid #f1e6eb !important;
+}
+
+#nav-sidebar .module caption, #nav-sidebar .module h2 {
+    background: #fdeaf1 !important;
+    color: #c72c5e !important;
+    font-size: 11.5px !important;
+}
+
+#nav-sidebar a.current-model, #nav-sidebar a.current-app {
+    background: #fdeaf1 !important;
+    color: #c72c5e !important;
+    font-weight: 700 !important;
+    border-left: 3px solid #c72c5e !important;
+}
+
+/* 10. Form & Fieldset */
+fieldset {
+    background: #ffffff !important;
+    border: 1px solid #f1e6eb !important;
+    border-radius: 14px !important;
+    margin-bottom: 20px !important;
+}
+
+fieldset h2 {
+    background: #fdfafb !important;
+    color: #c72c5e !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 12px 18px !important;
+    border-bottom: 1px solid #f1e6eb !important;
+}
+
+input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, 
+textarea:focus, select:focus {
+    border-color: #c72c5e !important;
+    box-shadow: 0 0 0 3px rgba(199, 44, 94, 0.12) !important;
+}
+</style>
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+  data-admin-utc-offset="{% now "Z" %}"
+  data-admin-server-timezone="{% get_current_timezone as time_zone %}{{ time_zone }}">
+<a href="#content-start" class="skip-to-content-link">{% translate 'Skip to main content' %}</a>
+
+<div id="container">
+
+    {% if not is_popup %}
+    <!-- Header Cake Crush HR -->
+    {% block header %}
+      <header id="header">
+        <div id="branding">
+        {% block branding %}
+          <h1 id="site-name">
+            <a href="{% url 'admin:index' %}">
+              🍰 Cake Crush HR <span style="font-weight: 400; opacity: 0.85; font-size: 13.5px; margin-left: 4px;">| Quản trị hệ thống</span>
+            </a>
+          </h1>
+        {% endblock %}
+        </div>
+        
+        {% block usertools %}
+        {% if has_permission %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                <span>Xin chào, <strong>{% firstof user.get_short_name user.get_username %}</strong></span>
+            {% endblock %}
+            
+            {% block userlinks %}
+                <a href="/dashboard/" class="btn-dashboard-link" title="Xem Dashboard chính">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard HR
+                </a>
+                
+                {% if user.has_usable_password %}
+                <a href="{% url 'admin:password_change' %}">
+                    <i class="fa-solid fa-key"></i> Đổi mật khẩu
+                </a>
+                {% endif %}
+                
+                <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </form>
+            {% endblock %}
+        </div>
+        {% endif %}
+        {% endblock %}
+      </header>
+    {% endblock %}
+
+    <!-- Breadcrumbs -->
+    {% block nav-breadcrumbs %}
+      <nav aria-label="{% translate 'Breadcrumbs' %}">
+        {% block breadcrumbs %}
+          <ol class="breadcrumbs">
+            <li><a href="{% url 'admin:index' %}"><i class="fa-solid fa-house" style="font-size: 11px; margin-right: 4px;"></i> Trang chủ Quản trị</a></li>
+            {% if title %}<li aria-current="page">{{ title }}</li>{% endif %}
+          </ol>
+        {% endblock %}
+      </nav>
+    {% endblock %}
+    {% endif %}
+
+    <div class="main" id="main">
+      {% if not is_popup and is_nav_sidebar_enabled %}
+        {% block nav-sidebar %}
+          {% include "admin/nav_sidebar.html" %}
+        {% endblock %}
+      {% endif %}
+      <main id="content-start" class="content" tabindex="-1">
+        {% block messages %}
+          {% if messages %}
+            <ul class="messagelist">{% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+            {% endfor %}</ul>
+          {% endif %}
+        {% endblock messages %}
+        
+        <!-- Content -->
+        <div id="content" class="{% block coltype %}colM{% endblock %}">
+          <div class="titles-and-tools">
+            <div class="titles">
+              {% block pretitle %}{% endblock %}
+              {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+              {% block content_subtitle %}{% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}{% endblock %}
+            </div>
+            {% block object-tools %}{% endblock %}
+          </div>
+          {% block content %}
+            {{ content }}
+          {% endblock %}
+          {% block sidebar %}{% endblock %}
+          <br class="clear">
+        </div>
+        <!-- END Content -->
+      </main>
+    </div>
+    <footer id="footer">{% block footer %}{% endblock %}</footer>
+</div>
+
+<!-- SVGs -->
+<svg xmlns="http://www.w3.org/2000/svg" class="base-svgs">
+  <symbol viewBox="0 0 24 24" id="icon-auto"><path d="M0 0h24v24H0z" fill="currentColor"/><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2V4a8 8 0 1 0 0 16z"/></symbol>
+  <symbol viewBox="0 0 24 24" id="icon-moon"><path d="M0 0h24v24H0z" fill="currentColor"/><path d="M10 7a7 7 0 0 0 12 4.9v.1c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2h.1A6.979 6.979 0 0 0 10 7zm-6 5a8 8 0 0 0 15.062 3.762A9 9 0 0 1 8.238 4.938 7.999 7.999 0 0 0 4 12z"/></symbol>
+  <symbol viewBox="0 0 24 24" id="icon-sun"><path d="M0 0h24v24H0z" fill="currentColor"/><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></symbol>
+</svg>
+<!-- Script bổ trợ Việt hóa & chuẩn hóa giao diện Cake Crush -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cố định màu sáng Cake Crush
+    document.documentElement.setAttribute('data-theme', 'light');
+    try { localStorage.removeItem('theme'); } catch(e) {}
+
+    // Việt hóa dropdown thao tác hàng loạt
+    const actionSelects = document.querySelectorAll('select[name="action"]');
+    actionSelects.forEach(function(sel) {
+        if (sel.options && sel.options.length > 0) {
+            for (let i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].text.includes('Select an option')) {
+                    sel.options[i].text = '— Chọn một hành động —';
+                }
+            }
+        }
+    });
+
+    // Thêm placeholder cho ô tìm kiếm
+    const searchInput = document.getElementById('searchbar');
+    if (searchInput && !searchInput.getAttribute('placeholder')) {
+        searchInput.setAttribute('placeholder', 'Nhập từ khóa cần tìm kiếm...');
+    }
+});
+</script>
+{% block extrabody %}{% endblock extrabody %}
+</body>
+</html>

@@ -3,652 +3,535 @@
 
 {% block title %}Cake Crush HR - Dashboard Quản lý{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+<!-- Tailwind CSS Play CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50: '#fdf2f6',
+            100: '#fdeaf1',
+            200: '#fbcfe1',
+            300: '#f7a4c4',
+            400: '#f06d9d',
+            500: '#e13b78',
+            600: '#c72c5e',
+            700: '#a81c49',
+            800: '#8c1a3e',
+            900: '#751a37',
+          }
+        },
+        boxShadow: {
+          'card': '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
+          'card-hover': '0 10px 25px -5px rgba(199, 44, 94, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)'
+        }
+      }
+    }
+  }
+</script>
 <style>
-  :root {
-    --cc-bg: #fcf8f9;
-    --cc-primary: #d63384;
-    --cc-primary-hover: #b8236b;
-    --cc-border: #f3e6ea;
-    --cc-text-dark: #212529;
-    --cc-text-muted: #8c9096;
+  /* Ngăn chặn triệt để hiệu ứng chớp khung viền trên thanh điều hướng sidebar */
+  .sidebar, .sidebar *, .nav-list, .nav-item, .nav-link {
+    border-color: transparent;
   }
-
-  .dash-container {
-    padding: 24px 36px;
-    background-color: var(--cc-bg);
-    min-height: 100%;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  .nav-link, .nav-item {
+    border: none !important;
+    outline: none !important;
   }
-
-  /* THANH TIÊU ĐỀ DASHBOARD + BỘ LỌC BÊN PHẢI */
-  .dash-header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 22px;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .dash-title-left .breadcrumb {
-    font-size: 12px;
-    color: #8c9096;
-    margin-bottom: 4px;
-  }
-
-  .dash-title-left .breadcrumb span {
-    color: var(--cc-primary);
-    font-weight: 600;
-  }
-
-  .dash-title-left h2 {
-    font-size: 26px;
-    font-weight: 700;
-    margin: 0 0 4px 0;
-    color: #1a1d20;
-    letter-spacing: -0.5px;
-  }
-
-  .dash-title-left p {
-    font-size: 12.5px;
-    color: #8c9096;
-    margin: 0;
-  }
-
-  .dash-filters-right {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    position: relative;
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    position: relative;
-  }
-
-  .filter-group label {
-    font-size: 11px;
-    color: #8c9096;
-    font-weight: 500;
-  }
-
-  .filter-select {
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 8px 32px 8px 14px;
-    font-size: 13px;
-    color: #495057;
-    outline: none;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 14px;
-    transition: border-color 0.2s;
-  }
-
-  .filter-select:hover, .filter-select:focus {
-    border-color: var(--cc-primary);
-  }
-
-  /* NÚT VÀ POPUP CHỌN KHOẢNG THỜI GIAN */
-  .filter-date-btn {
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s;
-  }
-
-  .filter-date-btn:hover {
-    border-color: var(--cc-primary);
-    background-color: #fffafc;
-  }
-
-  .date-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    background: #ffffff;
-    border: 1px solid #f1dbe3;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(214, 51, 132, 0.12);
-    padding: 12px;
-    z-index: 1000;
-    min-width: 250px;
-  }
-
-  .date-dropdown-menu.active {
-    display: block;
-  }
-
-  .date-range-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .date-range-inputs input[type="date"] {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    font-size: 12.5px;
-    color: #495057;
-    outline: none;
-    box-sizing: border-box;
-  }
-
-  .date-range-inputs input[type="date"]:focus {
-    border-color: var(--cc-primary);
-  }
-
-  .date-btn-apply {
-    width: 100%;
-    background: var(--cc-primary);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .date-btn-apply:hover {
-    background: var(--cc-primary-hover);
-  }
-
-  /* KHỐI CARD CHUNG */
-  .cc-card {
-    background: #ffffff;
-    border: 1px solid var(--cc-border);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  }
-
-  /* 4 KHỐI KPI TRÊN CÙNG */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .kpi-item {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-  }
-
-  .kpi-icon {
-    width: 36px;
-    height: 36px;
-    background: #fdf2f4;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: var(--cc-primary);
-    flex-shrink: 0;
-  }
-
-  .kpi-content {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .kpi-label {
-    font-size: 12px;
-    color: var(--cc-text-muted);
-    margin-bottom: 2px;
-  }
-
-  .kpi-num {
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 4px;
-  }
-
-  .kpi-sub {
-    font-size: 11px;
-    color: #a0a4a8;
-  }
-
-  /* HÀNG 2: THỐNG KÊ NHÂN SỰ & CHẤM CÔNG */
-  .grid-row-2 {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-
-  .card-head h4 {
-    font-size: 14.5px;
-    font-weight: 700;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .progress-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    font-size: 12.5px;
-  }
-
-  .dept-name {
-    width: 140px;
-    min-width: 110px;
-    color: #495057;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .bar-bg {
-    flex: 1;
-    height: 10px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #e64980, #c2255c);
-    border-radius: 10px;
-  }
-
-  .dept-count {
-    width: 25px;
-    text-align: right;
-    font-weight: 700;
-  }
-
-  .att-boxes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 10px;
-  }
-
-  .att-item {
-    border-radius: 12px;
-    padding: 16px 12px;
-  }
-
-  .att-green { background: #ebfbee; color: #2b8a3e; }
-  .att-yellow { background: #fff9db; color: #f08c00; }
-  .att-red { background: #fff0f6; color: #d63384; }
-
-  .att-title { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
-  .att-val { font-size: 26px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; }
-  .att-sub { font-size: 11px; opacity: 0.8; }
-
-  /* HÀNG 3: NGHỈ PHÉP, HỢP ĐỒNG, ĐÀO TẠO */
-  .grid-row-3 {
-    display: grid;
-    grid-template-columns: 1fr 1.6fr 1.1fr;
-    gap: 20px;
-  }
-
-  .leave-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-  }
-
-  .leave-yellow { background: #fff9db; color: #d97706; }
-  .leave-green { background: #ebfbee; color: #2b8a3e; }
-  .leave-pink { background: #fff0f6; color: #c2255c; }
-
-  /* NÚT BẤM CHUYỂN TRANG FOOTER CARD */
-  .card-footer-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--cc-primary);
-    text-decoration: none;
-    margin-top: 14px;
-    padding: 6px 4px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .card-footer-link:hover {
-    color: var(--cc-primary-hover);
-    background: #fdf2f4;
-    padding-left: 8px;
-  }
-
-  .table-custom {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  .table-custom th {
-    color: var(--cc-text-muted);
-    text-align: left;
-    padding: 6px 8px;
-    font-weight: 500;
-  }
-
-  .table-custom td {
-    padding: 10px 8px;
-    border-bottom: 1px solid #f8f9fa;
-  }
-
-  .pill-badge {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  .pill-red { background: #ffe3ec; color: #c2255c; }
-  .pill-yellow { background: #fff9db; color: #d97706; }
 </style>
+{% endblock %}
 
-<div class="dash-container">
-  <!-- PHẦN TIÊU ĐỀ + BỘ LỌC -->
-  <div class="dash-header-bar">
-    <div class="dash-title-left">
-      <div class="breadcrumb">Cake Crush HR &nbsp;/&nbsp; <span>Dashboard</span></div>
-      <h2>Dashboard</h2>
-      <p>Tổng quan nhân sự · Số liệu thực tế</p>
+{% block content %}
+<div class="w-full space-y-6">
+
+  <!-- ================= TOP HEADER BAR ================= -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-gray-100">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Tổng quan về nhân sự, chấm công, nghỉ phép, hợp đồng và đào tạo</p>
     </div>
 
-    <div class="dash-filters-right">
-      <!-- Bộ lọc bộ phận: Dữ liệu chuẩn xác từ CSDL -->
-      <div class="filter-group">
-        <label>Bộ phận</label>
-        <select class="filter-select" id="deptFilter" onchange="filterDepartment(this.value)">
-          <option value="all" {% if not bo_phan_duoc_chon or bo_phan_duoc_chon == 'all' %}selected{% endif %}>Tất cả bộ phận</option>
-          {% for bp in bo_phan %}
-            <option value="{{ bp.ma }}" {% if bo_phan_duoc_chon == bp.ma or bo_phan_duoc_chon == bp.ten %}selected{% endif %}>{{ bp.ten }}</option>
-          {% endfor %}
-        </select>
+    <!-- Filters -->
+    <div class="flex items-center gap-3 relative flex-wrap">
+      <!-- Bộ lọc bộ phận -->
+      <div class="flex flex-col gap-1">
+        <label class="text-[11px] font-semibold text-gray-500 tracking-wide">Bộ phận</label>
+        <div class="relative">
+          <select 
+            id="deptFilter" 
+            onchange="filterDepartment(this.value)"
+            class="appearance-none bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-xl pl-3.5 pr-9 py-2.5 shadow-sm hover:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition cursor-pointer"
+          >
+            <option value="all" {% if not bo_phan_duoc_chon or bo_phan_duoc_chon == 'all' %}selected{% endif %}>Tất cả bộ phận</option>
+            {% for bp in bo_phan %}
+              <option value="{{ bp.ma }}" {% if bo_phan_duoc_chon == bp.ma or bo_phan_duoc_chon == bp.ten %}selected{% endif %}>{{ bp.ten }}</option>
+            {% endfor %}
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
+        </div>
       </div>
 
-      <!-- Ô chọn khoảng thời gian có popup chọn lịch -->
-      <div class="filter-group">
-        <label>Khoảng thời gian</label>
-        <div class="filter-date-btn" id="datePickerBtn" onclick="toggleDateMenu()">
-          <span>📅</span> <span id="dateDisplayLabel">01/10 – 31/10/2026</span> ▾
-        </div>
+      <!-- Bộ lọc ngày -->
+      <div class="flex flex-col gap-1 relative">
+        <label class="text-[11px] font-semibold text-gray-500 tracking-wide">Khoảng thời gian</label>
+        <button 
+          type="button" 
+          id="datePickerBtn" 
+          onclick="toggleDateMenu()"
+          class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-xl px-3.5 py-2.5 shadow-sm hover:border-brand-300 hover:bg-brand-50/30 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition cursor-pointer"
+        >
+          <i class="fa-regular fa-calendar-days text-brand-600"></i>
+          <span id="dateDisplayLabel">01/10 – 31/10/2026</span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 ml-1"></i>
+        </button>
 
-        <div class="date-dropdown-menu" id="dateDropdownMenu">
-          <div class="date-range-inputs">
-            <label style="font-size: 11px; color: #6c757d;">Từ ngày:</label>
-            <input type="date" id="startDateInput" value="2026-10-01">
-            <label style="font-size: 11px; color: #6c757d;">Đến ngày:</label>
-            <input type="date" id="endDateInput" value="2026-10-31">
+        <!-- Date dropdown menu -->
+        <div id="dateDropdownMenu" class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-semibold text-gray-500 block mb-1">Từ ngày:</label>
+              <input type="date" id="startDateInput" value="2026-10-01" class="w-full text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-gray-500 block mb-1">Đến ngày:</label>
+              <input type="date" id="endDateInput" value="2026-10-31" class="w-full text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+            </div>
+            <button 
+              type="button" 
+              onclick="applyDateFilter()"
+              class="w-full bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 rounded-xl transition shadow-sm hover:shadow"
+            >
+              Áp dụng bộ lọc
+            </button>
           </div>
-          <button type="button" class="date-btn-apply" onclick="applyDateFilter()">Áp dụng khoảng ngày</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4 Khối Thống kê KPI trên cùng -->
-  <div class="kpi-row">
-    <div class="cc-card kpi-item">
-      <div class="kpi-icon">👥</div>
-      <div class="kpi-content">
-        <span class="kpi-label">Nhân sự</span>
-        <span class="kpi-num">{{ tong_nhan_vien|default:"0" }}</span>
-        <span class="kpi-sub">Nhân viên trong hệ thống</span>
+  <!-- ================= 4 THẺ KPI HÀNG ĐẦU ================= -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <!-- KPI 1: Nhân sự -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-gray-500 block mb-1">Nhân sự</span>
+          <div class="text-3xl font-extrabold text-gray-900 group-hover:text-brand-600 transition">{{ tong_nhan_vien|default:"0" }}</div>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition duration-200">
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
+        <span>Đang làm việc: <strong class="text-emerald-600 font-bold">{{ dang_lam|default:tong_nhan_vien|default:"0" }}</strong></span>
+        <span class="text-[11px] text-gray-400">Đã nghỉ: {{ da_nghi|default:"0" }}</span>
       </div>
     </div>
 
-    <div class="cc-card kpi-item">
-      <div class="kpi-icon">⏱</div>
-      <div class="kpi-content">
-        <span class="kpi-label">Chấm công</span>
-        <span class="kpi-num">{{ cham_cong_hom_nay|default:"0" }}</span>
-        <span class="kpi-sub">Đã ghi nhận trong ngày</span>
+    <!-- KPI 2: Chấm công -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-gray-500 block mb-1">Chấm công</span>
+          <div class="text-3xl font-extrabold text-gray-900 group-hover:text-emerald-600 transition">{{ cham_cong_hom_nay|default:"0" }}</div>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition duration-200">
+          <i class="fa-regular fa-clock"></i>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
+        <span>Có mặt: <strong class="text-emerald-600 font-bold">{{ diem_danh.co_mat|default:"0" }}</strong></span>
+        <span>Đi muộn: <strong class="text-amber-600 font-bold">{{ diem_danh.di_muon|default:"0" }}</strong></span>
       </div>
     </div>
 
-    <div class="cc-card kpi-item">
-      <div class="kpi-icon">📅</div>
-      <div class="kpi-content">
-        <span class="kpi-label">Nghỉ phép</span>
-        <span class="kpi-num">{{ don_nghi_cho_duyet|default:"0" }}</span>
-        <span class="kpi-sub">Đơn đang chờ duyệt</span>
+    <!-- KPI 3: Nghỉ phép -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-gray-500 block mb-1">Nghỉ phép</span>
+          <div class="text-3xl font-extrabold text-gray-900 group-hover:text-amber-600 transition">{{ don_nghi_cho_duyet|default:"0" }}</div>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition duration-200">
+          <i class="fa-regular fa-calendar-check"></i>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
+        <span class="text-amber-700 font-medium">Đơn đang chờ duyệt</span>
+        <a href="/quan-ly/nghi-phep/" class="text-brand-600 hover:text-brand-700 font-semibold inline-flex items-center gap-1">Duyệt ngay <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
       </div>
     </div>
 
-    <div class="cc-card kpi-item">
-      <div class="kpi-icon">📄</div>
-      <div class="kpi-content">
-        <span class="kpi-label">Hợp đồng</span>
-        <span class="kpi-num">{{ hop_dong_sap_het_han|default:"0" }}</span>
-        <span class="kpi-sub">Sắp hết hạn trong 30 ngày</span>
+    <!-- KPI 4: Hợp đồng -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 group">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-gray-500 block mb-1">Hợp đồng</span>
+          <div class="text-3xl font-extrabold text-gray-900 group-hover:text-rose-600 transition">{{ hop_dong_sap_het_han|default:"0" }}</div>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 group-hover:bg-rose-600 group-hover:text-white transition duration-200">
+          <i class="fa-regular fa-file-lines"></i>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
+        <span class="text-rose-600 font-medium">Hết hạn trong 30 ngày</span>
+        <a href="/quan-ly/hop-dong/" class="text-brand-600 hover:text-brand-700 font-semibold inline-flex items-center gap-1">Xem HĐ <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
       </div>
     </div>
   </div>
 
-  <!-- Hàng 2: Thống kê nhân sự theo bộ phận & Chấm công -->
-  <div class="grid-row-2">
-    <!-- Biểu đồ phân bổ theo bộ phận -->
-    <div class="cc-card">
-      <div class="card-head">
-        <h4><span>👥</span> Thống kê nhân sự</h4>
-        <span style="font-size: 11.5px; color: var(--cc-text-muted);">Đang làm: {{ dang_lam|default:tong_nhan_vien|default:"0" }} · Đã nghỉ: {{ da_nghi|default:"0" }}</span>
-      </div>
-      <div style="font-size: 11px; color: var(--cc-text-muted); margin-bottom: 12px;">Theo bộ phận</div>
-      {% for bp in bo_phan %}
-      <div class="progress-item" data-dept="{{ bp.ma }}" data-dept-name="{{ bp.ten }}" style="{% if bo_phan_obj and not bp.is_selected %}display: none;{% endif %}">
-        <span class="dept-name" title="{{ bp.ten }}">{{ bp.ten }}</span>
-        <div class="bar-bg">
-          <div class="bar-fill" style="width: {{ bp.phan_tram|default:'0' }}%;"></div>
+  <!-- ================= HÀNG 2: THỐNG KÊ NHÂN SỰ & CHẤM CÔNG ================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <!-- Cột trái (7/12): Phân bổ nhân sự theo bộ phận -->
+    <div class="lg:col-span-7 bg-white rounded-2xl p-5 border border-gray-100 shadow-card">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 text-sm">Thống kê nhân sự</h3>
+            <span class="text-[11px] text-gray-400">Phân bổ nhân viên theo từng phòng ban</span>
+          </div>
         </div>
-        <span class="dept-count">{{ bp.so_luong|default:"0" }}</span>
+        <span class="text-xs font-semibold bg-gray-50 text-gray-600 px-2.5 py-1 rounded-lg border border-gray-100">
+          Tổng: {{ tong_nhan_vien|default:"0" }} NV
+        </span>
       </div>
-      {% empty %}
-      <div style="text-align: center; color: var(--cc-text-muted); font-size: 12px; padding: 12px 0;">Chưa có dữ liệu bộ phận</div>
-      {% endfor %}
+
+      <div class="space-y-3.5 pt-1">
+        {% for bp in bo_phan %}
+        <div class="group" data-dept="{{ bp.ma }}" data-dept-name="{{ bp.ten }}" style="{% if bo_phan_obj and not bp.is_selected %}display: none;{% endif %}">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="font-medium text-gray-700 group-hover:text-brand-600 transition" title="{{ bp.ten }}">{{ bp.ten }}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 text-[11px]">{{ bp.phan_tram|default:'0' }}%</span>
+              <span class="font-bold text-gray-900 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-md min-w-[28px] text-center">{{ bp.so_luong|default:"0" }}</span>
+            </div>
+          </div>
+          <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              class="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-500 group-hover:brightness-105" 
+              style="width: {{ bp.phan_tram|default:'0' }}%;"
+            ></div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-8 text-gray-400 text-xs">
+          <i class="fa-regular fa-folder-open text-2xl mb-2 text-gray-300 block"></i>
+          Chưa có dữ liệu phòng ban
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
-    <!-- Thống kê chấm công -->
-    <div class="cc-card">
-      <div class="card-head">
-        <h4><span>⏱</span> Thống kê chấm công</h4>
+    <!-- Cột phải (5/12): Điểm danh & Chấm công hôm nay -->
+    <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-gray-100 shadow-card flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-50">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+              <i class="fa-regular fa-clock"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 text-sm">Thống kê chấm công</h3>
+              <span class="text-[11px] text-gray-400">Trạng thái điểm danh ngày hôm nay</span>
+            </div>
+          </div>
+          <span class="text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+            Hôm nay
+          </span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 pt-2">
+          <!-- Có mặt -->
+          <div class="bg-gradient-to-b from-emerald-50/80 to-emerald-50/20 border border-emerald-100/80 rounded-2xl p-3.5 text-center flex flex-col justify-between">
+            <span class="text-[11.5px] font-semibold text-emerald-800">Có mặt</span>
+            <div class="text-2xl font-black text-emerald-700 my-1">{{ diem_danh.co_mat|default:"0" }}</div>
+            <span class="text-[10.5px] text-emerald-600/90 font-medium">Nhân viên</span>
+          </div>
+
+          <!-- Đi muộn -->
+          <div class="bg-gradient-to-b from-amber-50/80 to-amber-50/20 border border-amber-100/80 rounded-2xl p-3.5 text-center flex flex-col justify-between">
+            <span class="text-[11.5px] font-semibold text-amber-800">Đi muộn</span>
+            <div class="text-2xl font-black text-amber-700 my-1">{{ diem_danh.di_muon|default:"0" }}</div>
+            <span class="text-[10.5px] text-amber-600/90 font-medium">Nhân viên</span>
+          </div>
+
+          <!-- Vắng mặt -->
+          <div class="bg-gradient-to-b from-rose-50/80 to-rose-50/20 border border-rose-100/80 rounded-2xl p-3.5 text-center flex flex-col justify-between">
+            <span class="text-[11.5px] font-semibold text-rose-800">Vắng mặt</span>
+            <div class="text-2xl font-black text-rose-700 my-1">{{ diem_danh.vang_mat|default:"0" }}</div>
+            <span class="text-[10.5px] text-rose-600/90 font-medium">Nhân viên</span>
+          </div>
+        </div>
+
+        <!-- Lượt check-in gần nhất hôm nay (tối đa 4 nhân viên) -->
+        <div class="mt-4 pt-3.5 border-t border-gray-100">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-clock text-emerald-600 text-[11px]"></i>
+              Lượt check-in gần nhất
+            </span>
+            <span class="text-[11px] text-gray-400">Hôm nay</span>
+          </div>
+
+          <div class="space-y-2">
+            {% if checkin_gan_day %}
+              {% for item in checkin_gan_day %}
+                <div class="flex items-center justify-between p-2 rounded-xl bg-gray-50/70 hover:bg-gray-50 border border-gray-100 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-[11px] font-bold shrink-0">
+                      {{ item.ten|slice:":1" }}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-xs font-semibold text-gray-800 truncate">{{ item.ten }}</div>
+                      <div class="text-[10px] text-gray-400 truncate">{{ item.phong }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-xs font-bold text-gray-700 font-mono">{{ item.gio_checkin }}</span>
+                    <span class="text-[10.5px] font-semibold px-2 py-0.5 rounded-full border {{ item.trang_thai_class }}">
+                      {{ item.trang_thai_text }}
+                    </span>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="py-5 text-center text-xs text-gray-400 flex flex-col items-center justify-center gap-1.5 rounded-xl bg-gray-50/50 border border-dashed border-gray-200">
+                <i class="fa-regular fa-clock text-gray-300 text-base"></i>
+                <span>Chưa có lượt check-in nào được ghi nhận hôm nay</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div class="att-boxes">
-        <div class="att-item att-green">
-          <div class="att-title">Có mặt</div>
-          <div class="att-val">{{ diem_danh.co_mat|default:"0" }}</div>
-          <div class="att-sub">Nhân viên</div>
-        </div>
-        <div class="att-item att-yellow">
-          <div class="att-title">Đi muộn</div>
-          <div class="att-val">{{ diem_danh.di_muon|default:"0" }}</div>
-          <div class="att-sub">Nhân viên</div>
-        </div>
-        <div class="att-item att-red">
-          <div class="att-title">Vắng mặt</div>
-          <div class="att-val">{{ diem_danh.vang_mat|default:"0" }}</div>
-          <div class="att-sub">Nhân viên</div>
-        </div>
+
+      <div class="mt-4 pt-3 border-t border-gray-100">
+        <a href="/quan-ly/cham-cong/" class="w-full flex items-center justify-between text-xs font-semibold text-brand-600 hover:text-brand-700 bg-brand-50/50 hover:bg-brand-50 p-2.5 rounded-xl transition">
+          <span>Xem bảng chấm công toàn công ty</span>
+          <i class="fa-solid fa-arrow-right text-[11px]"></i>
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- Hàng 3: Nghỉ phép, Hợp đồng, Đào tạo -->
-  <div class="grid-row-3">
-    <!-- Tình trạng nghỉ phép: Đã gắn URL chuẩn của quản lý duyệt đơn -->
-    <div class="cc-card">
-      <div class="card-head">
-        <h4><span>📅</span> Tình trạng nghỉ phép</h4>
+  <!-- ================= HÀNG 3: NGHỈ PHÉP, HỢP ĐỒNG, ĐÀO TẠO ================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <!-- Card 1: Tình trạng nghỉ phép -->
+    <div class="lg:col-span-3 bg-white rounded-2xl p-5 border border-gray-100 shadow-card flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-gray-50">
+          <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+            <i class="fa-regular fa-calendar-check"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 text-sm">Tình trạng nghỉ phép</h3>
+            <span class="text-[11px] text-gray-400">Đơn xin phép trong tháng</span>
+          </div>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between p-3 rounded-xl bg-amber-50/60 border border-amber-100/60 text-xs">
+            <span class="font-semibold text-amber-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span> Chờ duyệt
+            </span>
+            <span class="font-bold text-amber-800 text-sm">{{ don_nghi_cho_duyet|default:"0" }}</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50/60 border border-emerald-100/60 text-xs">
+            <span class="font-semibold text-emerald-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Đã duyệt
+            </span>
+            <span class="font-bold text-emerald-800 text-sm">{{ don_nghi_da_duyet|default:"0" }}</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50/60 border border-rose-100/60 text-xs">
+            <span class="font-semibold text-rose-900 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span> Từ chối
+            </span>
+            <span class="font-bold text-rose-800 text-sm">{{ don_nghi_tu_choi|default:"0" }}</span>
+          </div>
+        </div>
       </div>
-      <div class="leave-item leave-yellow">
-        <span>Chờ duyệt</span>
-        <span>{{ don_nghi_cho_duyet|default:"0" }}</span>
+
+      <div class="mt-4 pt-3 border-t border-gray-100">
+        <a href="/quan-ly/nghi-phep/" class="flex items-center justify-between text-xs font-semibold text-brand-600 hover:text-brand-700 hover:bg-brand-50/60 p-2 rounded-lg transition group">
+          <span>Xem đơn chờ duyệt</span>
+          <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition duration-150"></i>
+        </a>
       </div>
-      <div class="leave-item leave-green">
-        <span>Đã duyệt</span>
-        <span>{{ don_nghi_da_duyet|default:"0" }}</span>
-      </div>
-      <div class="leave-item leave-pink">
-        <span>Từ chối</span>
-        <span>{{ don_nghi_tu_choi|default:"0" }}</span>
-      </div>
-      <a href="/quan-ly/nghi-phep/" class="card-footer-link" title="Xem danh sách đơn nghỉ">
-        Xem đơn chờ duyệt <span>&rarr;</span>
-      </a>
     </div>
 
-    <!-- Hợp đồng sắp hết hạn -->
-    <div class="cc-card">
-      <div class="card-head">
-        <h4><span>📄</span> Hợp đồng sắp hết hạn</h4>
+    <!-- Card 2: Hợp đồng sắp hết hạn (Tối đa 3 dòng + Nút xem thêm) -->
+    <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-gray-100 shadow-card flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-50">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm">
+              <i class="fa-regular fa-file-lines"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 text-sm">Hợp đồng sắp hết hạn</h3>
+              <span class="text-[11px] text-gray-400">Dưới 30 ngày cần gia hạn</span>
+            </div>
+          </div>
+          {% if hop_dong_sap_het_han > 0 %}
+          <span class="text-[11px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">
+            {{ hop_dong_sap_het_han }} HĐ
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-[11px] font-medium text-gray-400 border-b border-gray-100 pb-2">
+                <th class="pb-2 font-medium">Mã NV / Tên</th>
+                <th class="pb-2 font-medium">Hết hạn</th>
+                <th class="pb-2 font-medium text-right">Còn lại</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              {% for hd in danh_sach_hop_dong|slice:":3" %}
+              <tr class="hover:bg-brand-50/30 transition">
+                <td class="py-2.5">
+                  <div class="font-bold text-brand-700">{{ hd.ma_nv }}</div>
+                  <div class="text-gray-600 text-[11.5px] truncate max-w-[110px]">{{ hd.ho_ten }}</div>
+                </td>
+                <td class="py-2.5 text-gray-500 font-medium">{{ hd.het_han }}</td>
+                <td class="py-2.5 text-right">
+                  <span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-bold {% if hd.canh_bao == 'do' %}bg-rose-100 text-rose-700 border border-rose-200/50{% else %}bg-amber-100 text-amber-700 border border-amber-200/50{% endif %}">
+                    {{ hd.con_lai }}
+                  </span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center py-6 text-gray-400 text-xs">
+                  <i class="fa-regular fa-circle-check text-emerald-500 text-lg mb-1 block"></i>
+                  Không có hợp đồng nào sắp hết hạn
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <table class="table-custom">
-        <thead>
-          <tr>
-            <th>Mã NV / Họ tên</th>
-            <th>Loại hợp đồng</th>
-            <th>Hết hạn</th>
-            <th>Còn lại</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for hd in danh_sach_hop_dong %}
-          <tr>
-            <td>
-              <span style="color: var(--cc-primary); font-weight:700;">{{ hd.ma_nv }}</span><br>
-              <span>{{ hd.ho_ten }}</span>
-            </td>
-            <td>{{ hd.loai }}</td>
-            <td>{{ hd.het_han }}</td>
-            <td>
-              <span class="pill-badge {% if hd.canh_bao == 'do' %}pill-red{% else %}pill-yellow{% endif %}">
-                {{ hd.con_lai }}
+
+      <div class="mt-4 pt-3 border-t border-gray-100">
+        <a href="/quan-ly/hop-dong/" class="flex items-center justify-between text-xs font-semibold text-brand-600 hover:text-brand-700 hover:bg-brand-50/60 p-2 rounded-lg transition group">
+          <span class="flex items-center gap-1.5">
+            Xem tất cả hợp đồng
+            {% if hop_dong_sap_het_han > 3 %}
+              <span class="bg-amber-100 text-amber-700 text-[10.5px] font-bold px-1.5 py-0.5 rounded-full">
+                +{{ hop_dong_sap_het_han|add:"-3" }} nữa
               </span>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="4" style="text-align: center; color: var(--cc-text-muted); padding: 24px 0;">
-              Không có hợp đồng nào sắp hết hạn
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <div style="font-size: 10px; color: #a0a4a8; margin-top: 10px;">Dưới 30 ngày: vàng · Dưới 15 ngày: đỏ</div>
+            {% endif %}
+          </span>
+          <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition duration-150"></i>
+        </a>
+      </div>
     </div>
 
-    <!-- Tình trạng đào tạo: Đã gắn URL chuẩn của danh sách khóa đào tạo -->
-    <div class="cc-card">
-      <div class="card-head">
-        <h4><span>📖</span> Tình trạng đào tạo</h4>
+    <!-- Card 3: Tình trạng đào tạo -->
+    <div class="lg:col-span-4 bg-white rounded-2xl p-5 border border-gray-100 shadow-card flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-2.5 mb-4 pb-3 border-b border-gray-50">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 text-sm">Tình trạng đào tạo</h3>
+            <span class="text-[11px] text-gray-400">Tiến độ nhân viên theo khóa</span>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-1">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-gray-500 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-gray-400"></span> Chưa học
+            </span>
+            <span class="font-bold text-gray-900">{{ dao_tao.chua_hoc|default:"0" }}</span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-amber-600 font-medium flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span> Đang học
+            </span>
+            <span class="font-bold text-amber-600">{{ dao_tao.dang_hoc|default:"0" }}</span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-emerald-600 font-medium flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Đã học
+            </span>
+            <span class="font-bold text-emerald-600">{{ dao_tao.da_hoc|default:"0" }}</span>
+          </div>
+
+          <div class="pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+            <span>Đạt yêu cầu: <strong class="text-emerald-600 font-bold">{{ dao_tao.dat|default:"0" }}</strong></span>
+            <span>Chưa đạt: <strong class="text-rose-600 font-bold">{{ dao_tao.chua_dat|default:"0" }}</strong></span>
+          </div>
+        </div>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:12.5px;">
-        <span style="color:#6c757d;">Chưa học</span>
-        <strong>{{ dao_tao.chua_hoc|default:"0" }}</strong>
+
+      <div class="mt-4 pt-3 border-t border-gray-100">
+        <a href="/quan-ly/dao-tao/" class="flex items-center justify-between text-xs font-semibold text-brand-600 hover:text-brand-700 hover:bg-brand-50/60 p-2 rounded-lg transition group">
+          <span>Xem tình trạng theo khóa</span>
+          <i class="fa-solid fa-arrow-right text-[11px] group-hover:translate-x-1 transition duration-150"></i>
+        </a>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:12.5px;">
-        <span style="color:#d97706; font-weight:600;">Đang học</span>
-        <strong style="color:#d97706;">{{ dao_tao.dang_hoc|default:"0" }}</strong>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:16px; font-size:12.5px;">
-        <span style="color:#2b8a3e; font-weight:600;">Đã học</span>
-        <strong style="color:#2b8a3e;">{{ dao_tao.da_hoc|default:"0" }}</strong>
-      </div>
-      <div style="font-size: 11px; color: #a0a4a8; border-top: 1px solid #f1f3f5; padding-top: 8px;">
-        Đạt: {{ dao_tao.dat|default:"0" }} · Chưa đạt: {{ dao_tao.chua_dat|default:"0" }}
-      </div>
-      <a href="/quan-ly/dao-tao/" class="card-footer-link" title="Xem danh sách khóa đào tạo">
-        Xem tình trạng theo khóa <span>&rarr;</span>
-      </a>
     </div>
   </div>
+
 </div>
 
-<!-- JAVASCRIPT XỬ LÝ SỰ KIỆN NỐI CHUỖI AN TOÀN -->
+<!-- JAVASCRIPT XỬ LÝ LỌC & THỜI GIAN -->
 <script>
   function toggleDateMenu() {
-    var menu = document.getElementById('dateDropdownMenu');
+    const menu = document.getElementById('dateDropdownMenu');
     if (menu) {
-      menu.classList.toggle('active');
+      menu.classList.toggle('hidden');
     }
   }
 
   function applyDateFilter() {
-    var startInput = document.getElementById('startDateInput');
-    var endInput = document.getElementById('endDateInput');
-    var displayLabel = document.getElementById('dateDisplayLabel');
-    var menu = document.getElementById('dateDropdownMenu');
+    const startInput = document.getElementById('startDateInput');
+    const endInput = document.getElementById('endDateInput');
+    const displayLabel = document.getElementById('dateDisplayLabel');
+    const menu = document.getElementById('dateDropdownMenu');
 
     if (startInput && endInput && startInput.value && endInput.value) {
-      var pStart = startInput.value.split('-');
-      var pEnd = endInput.value.split('-');
-      var fmtStart = pStart[2] + '/' + pStart[1] + '/' + pStart[0];
-      var fmtEnd = pEnd[2] + '/' + pEnd[1] + '/' + pEnd[0];
+      const pStart = startInput.value.split('-');
+      const pEnd = endInput.value.split('-');
+      const fmtStart = `${pStart[2]}/${pStart[1]}/${pStart[0]}`;
+      const fmtEnd = `${pEnd[2]}/${pEnd[1]}/${pEnd[0]}`;
       if (displayLabel) {
-        displayLabel.innerText = fmtStart + ' – ' + fmtEnd;
+        displayLabel.textContent = `${fmtStart} – ${fmtEnd}`;
       }
     }
     if (menu) {
-      menu.classList.remove('active');
+      menu.classList.add('hidden');
     }
   }
 
   // Đóng dropdown khi click ra ngoài
   document.addEventListener('click', function(event) {
-    var btn = document.getElementById('datePickerBtn');
-    var menu = document.getElementById('dateDropdownMenu');
+    const btn = document.getElementById('datePickerBtn');
+    const menu = document.getElementById('dateDropdownMenu');
     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) {
-      menu.classList.remove('active');
+      menu.classList.add('hidden');
     }
   });
 
-  // Lọc hiển thị bộ phận theo giá trị người dùng chọn: cập nhật toàn bộ Dashboard
+  // Lọc hiển thị bộ phận theo giá trị người dùng chọn
   function filterDepartment(deptVal) {
-    var url = new URL(window.location.href);
+    const url = new URL(window.location.href);
     if (!deptVal || deptVal === 'all') {
       url.searchParams.delete('bo_phan');
     } else {

@@ -78,6 +78,26 @@ def _xu_ly_cham_cong(request, ham, thong_bao):  # Dùng chung cho Check-in và C
     except ValidationError as loi:  # Vi phạm quy tắc hoặc lưu thất bại.
         messages.error(request, " ".join(loi.messages))  # Hiển thị đúng câu thông báo của đặc tả.
     else:  # Thành công.
+        try:
+            from tai_khoan.helpers import tao_thong_bao
+            if ban_ghi.gio_checkout:
+                tao_thong_bao(
+                    nguoi_nhan=request.user,
+                    tieu_de="Check-out thành công",
+                    noi_dung=f"Bạn đã ghi nhận Check-out thành công lúc {ban_ghi.gio_checkout.strftime('%H:%M')}.",
+                    loai="CHAM_CONG",
+                    duong_dan="/cham-cong/hom-nay/",
+                )
+            else:
+                tao_thong_bao(
+                    nguoi_nhan=request.user,
+                    tieu_de="Check-in thành công",
+                    noi_dung=f"Bạn đã ghi nhận Check-in ca làm việc thành công lúc {ban_ghi.gio_checkin.strftime('%H:%M')}.",
+                    loai="CHAM_CONG",
+                    duong_dan="/cham-cong/hom-nay/",
+                )
+        except Exception:
+            pass
         messages.success(request, thong_bao(ban_ghi))  # Thông báo kèm thời gian vừa ghi nhận.
     return redirect("cham_cong:hom_nay")  # Quay lại trang chấm công (tránh gửi lại khi F5).
 
@@ -129,6 +149,19 @@ def tao_don(request):  # UC-NP-3.01: tạo đơn xin nghỉ phép.
         except ValidationError as loi:  # Vi phạm quy tắc.
             _gan_loi(form, loi)  # Đưa lỗi về đúng ô nhập.
         else:  # Lưu thành công.
+            try:
+                from tai_khoan.helpers import tao_thong_bao
+                from django.contrib.auth.models import User
+                quan_ly_users = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+                tao_thong_bao(
+                    nguoi_nhan=quan_ly_users,
+                    tieu_de=f"Đơn nghỉ phép mới: {nv.tennv}",
+                    noi_dung=f"Nhân viên {nv.tennv} đã gửi đơn xin nghỉ phép ({don.songaynghi} ngày, từ {don.ngaybatdau.strftime('%d/%m/%Y')}).",
+                    loai="NGHI_PHEP",
+                    duong_dan=f"/quan-ly/nghi-phep/{don.pk}/",
+                )
+            except Exception:
+                pass
             messages.success(  # Thông báo theo đặc tả.
                 request, f"Gửi đơn xin nghỉ phép thành công. Đơn {don.ma_hien_thi} đã được gửi và đang chờ quản lý xét duyệt.",  # Nội dung.
             )  # Kết thúc thông báo.
@@ -354,6 +387,18 @@ def phe_duyet(request, madon):  # UC-QLP-3.01: phê duyệt đơn.
     except ValidationError as loi:  # Vi phạm quy tắc.
         messages.error(request, " ".join(loi.messages))  # Báo lỗi.
     else:  # Thành công.
+        try:
+            from tai_khoan.helpers import tao_thong_bao
+            if don.manv and don.manv.id_taikhoan:
+                tao_thong_bao(
+                    nguoi_nhan=don.manv.id_taikhoan,
+                    tieu_de=f"Đơn nghỉ phép {don.ma_hien_thi} đã được duyệt",
+                    noi_dung=f"Quản lý đã phê duyệt đơn xin nghỉ phép của bạn (từ {don.ngaybatdau.strftime('%d/%m/%Y')} đến {don.ngayketthuc.strftime('%d/%m/%Y')}).",
+                    loai="NGHI_PHEP",
+                    duong_dan=f"/nghi-phep/{don.pk}/",
+                )
+        except Exception:
+            pass
         messages.success(request, f"Đã phê duyệt đơn {don.ma_hien_thi}. Ngày nghỉ đã được đồng bộ vào bảng chấm công.")  # Thông báo.
     return redirect("cham_cong:chi_tiet_duyet", madon=don.pk)  # Quay lại chi tiết đơn.
 
@@ -369,6 +414,18 @@ def tu_choi(request, madon):  # UC-QLP-3.01 luồng thay thế: từ chối đơ
     except ValidationError as loi:  # Thiếu lý do hoặc vi phạm quy tắc.
         _gan_loi(form, loi)  # Gắn lỗi vào ô lý do.
         return _hien_thi_chi_tiet_duyet(request, don, form, mo_tu_choi=True)  # Giữ hộp thoại mở, không lưu.
+    try:
+        from tai_khoan.helpers import tao_thong_bao
+        if don.manv and don.manv.id_taikhoan:
+            tao_thong_bao(
+                nguoi_nhan=don.manv.id_taikhoan,
+                tieu_de=f"Đơn nghỉ phép {don.ma_hien_thi} bị từ chối",
+                noi_dung=f"Đơn xin nghỉ phép của bạn đã bị từ chối. Lý do: {form.cleaned_data.get('phanhoi', 'Không có')}.",
+                loai="NGHI_PHEP",
+                duong_dan=f"/nghi-phep/{don.pk}/",
+            )
+    except Exception:
+        pass
     messages.success(request, f"Đã từ chối đơn {don.ma_hien_thi}. Quỹ phép của nhân viên giữ nguyên.")  # Thông báo.
     return redirect("cham_cong:chi_tiet_duyet", madon=don.pk)  # Quay lại chi tiết đơn.
 

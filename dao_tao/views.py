@@ -97,6 +97,17 @@ def tao_khoa(request):
                         "tieu_de": "Tạo khóa đào tạo",
                     },
                 )
+            try:
+                from tai_khoan.helpers import thong_bao_quan_ly
+                thong_bao_quan_ly(
+                    tieu_de=f"Khóa đào tạo mới: {khoa.tenkhoa}",
+                    noi_dung=f"Khóa đào tạo '{khoa.tenkhoa}' ({khoa.makhoa}) đã được tạo. Thời gian: {khoa.ngaybatdau.strftime('%d/%m/%Y')} - {khoa.ngayketthuc.strftime('%d/%m/%Y')}.",
+                    loai="DAO_TAO",
+                    duong_dan=f"/dao-tao/khoa/{khoa.makhoa}/",
+                    loai_tru_user=request.user,
+                )
+            except Exception:
+                pass
             messages.success(request, f"Đã tạo thành công khóa đào tạo {khoa.makhoa} - {khoa.tenkhoa}.")
             return redirect("dao_tao:chi_tiet_khoa", makhoa=khoa.makhoa)
     else:
@@ -169,6 +180,24 @@ def phan_cong_dao_tao(request):
         form = PhanCongDaoTaoForm(request.POST)
         if form.is_valid():
             phan_cong = form.save()
+            try:
+                from tai_khoan.helpers import thong_bao_nhan_vien, thong_bao_quan_ly
+                thong_bao_nhan_vien(
+                    nhan_vien=phan_cong.nhanvien,
+                    tieu_de=f"Phân công đào tạo: {phan_cong.khoadaotao.tenkhoa}",
+                    noi_dung=f"Bạn đã được phân công tham gia khóa đào tạo '{phan_cong.khoadaotao.tenkhoa}'. Vui lòng xem thông tin chi tiết và tham gia đúng hạn.",
+                    loai="DAO_TAO",
+                    duong_dan="/dao-tao/chuong-trinh-cua-toi/",
+                )
+                thong_bao_quan_ly(
+                    tieu_de=f"Phân công đào tạo: {phan_cong.nhanvien.tennv}",
+                    noi_dung=f"Đã phân công nhân viên {phan_cong.nhanvien.tennv} vào khóa '{phan_cong.khoadaotao.tenkhoa}'.",
+                    loai="DAO_TAO",
+                    duong_dan=f"/dao-tao/theo-doi/?nhanvien={phan_cong.nhanvien.pk}&khoa={phan_cong.khoadaotao.pk}",
+                    loai_tru_user=request.user,
+                )
+            except Exception:
+                pass
             messages.success(
                 request,
                 f"Đã phân công nhân viên {phan_cong.nhanvien.tennv} vào khóa {phan_cong.khoadaotao.tenkhoa}.",
@@ -267,6 +296,25 @@ def cap_nhat_ket_qua_dao_tao(request):
                 ket_qua=form.cleaned_data["ketqua"],
                 nguoi_danh_gia=request.user,
             )
+            try:
+                from tai_khoan.helpers import thong_bao_nhan_vien, thong_bao_quan_ly
+                ketqua_text = "Đạt" if form.cleaned_data["ketqua"] in [KetQuaDaoTao.DAT, "Đạt", "DAT"] else "Chưa đạt"
+                thong_bao_nhan_vien(
+                    nhan_vien=pc.nhanvien,
+                    tieu_de=f"Kết quả đào tạo: {pc.khoadaotao.tenkhoa}",
+                    noi_dung=f"Kết quả khóa đào tạo '{pc.khoadaotao.tenkhoa}' của bạn đã được cập nhật: {ketqua_text}.",
+                    loai="DAO_TAO",
+                    duong_dan="/dao-tao/ket-qua-cua-toi/",
+                )
+                thong_bao_quan_ly(
+                    tieu_de=f"Kết quả đào tạo: {pc.nhanvien.tennv}",
+                    noi_dung=f"Đã ghi nhận kết quả khóa '{pc.khoadaotao.tenkhoa}' cho nhân viên {pc.nhanvien.tennv}: {ketqua_text}.",
+                    loai="DAO_TAO",
+                    duong_dan=f"/dao-tao/theo-doi/?nhanvien={pc.nhanvien.pk}&khoa={pc.khoadaotao.pk}",
+                    loai_tru_user=request.user,
+                )
+            except Exception:
+                pass
             messages.success(request, f"Đã cập nhật kết quả: {form.cleaned_data['ketqua']}.")
             return redirect(f"{reverse('dao_tao:theo_doi_dao_tao')}?nhanvien={p_nhanvien}&khoa={p_khoa}")
     else:

@@ -47,6 +47,25 @@ def xu_ly_ghi_nhan(request, loai, cfg):
         except DatabaseError:
             messages.error(request, cfg["loi_csdl"])
         else:
+            try:
+                from tai_khoan.helpers import thong_bao_nhan_vien, thong_bao_quan_ly
+                ten_loai = "Khen thưởng" if loai == "KHENTHUONG" else "Kỷ luật"
+                thong_bao_nhan_vien(
+                    nhan_vien=nv,
+                    tieu_de=f"Quyết định {ten_loai.lower()}",
+                    noi_dung=f"Bạn có quyết định {ten_loai.lower()} mới: {obj.hinhthuc} ({obj.lydo}).",
+                    loai="DANH_GIA",
+                    duong_dan="/danh-gia/ket-qua/",
+                )
+                thong_bao_quan_ly(
+                    tieu_de=f"{ten_loai}: {nv.tennv}",
+                    noi_dung=f"Đã ghi nhận {ten_loai.lower()} cho nhân viên {nv.tennv}: {obj.hinhthuc}.",
+                    loai="DANH_GIA",
+                    duong_dan=cfg["url"] if cfg["url"].startswith("/") else reverse(cfg["url"]),
+                    loai_tru_user=request.user,
+                )
+            except Exception:
+                pass
             messages.success(request, cfg["thanh_cong"])
             return redirect(cfg["url"])
 

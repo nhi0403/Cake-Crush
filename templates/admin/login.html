@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Quản trị | Cake Crush HR</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#fdf2f6',
+                100: '#fdeaf1',
+                200: '#fbcfe1',
+                300: '#f7a4c4',
+                400: '#f06d9d',
+                500: '#e13b78',
+                600: '#c72c5e',
+                700: '#a81c49',
+                800: '#8c1a3e',
+                900: '#751a37',
+              }
+            },
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-[#faf7f8] min-h-screen flex items-center justify-center p-4 selection:bg-brand-100 selection:text-brand-900 font-sans">
+
+    <!-- Card đăng nhập trung tâm -->
+    <div class="w-full max-w-[440px] bg-white rounded-3xl shadow-xl shadow-brand-500/5 border border-pink-100/80 p-8 sm:p-10 relative overflow-hidden">
+        
+        <!-- Hiệu ứng vầng sáng trang trí -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-100 rounded-full blur-3xl opacity-70 pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-pink-100 rounded-full blur-3xl opacity-70 pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <!-- Header Brand -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white text-2xl shadow-lg shadow-brand-500/25 mb-4">
+                    <i class="fa-solid fa-cake-candles"></i>
+                </div>
+                <h1 class="text-2xl font-black text-gray-900 tracking-tight">Cake Crush HR</h1>
+                <p class="text-xs font-semibold text-brand-600 uppercase tracking-widest mt-1">Cổng Quản trị Hệ thống</p>
+                <p class="text-xs text-gray-400 mt-2">Dành riêng cho Quản trị viên và Ban Điều hành</p>
+            </div>
+
+            <!-- Thông báo lỗi (nếu có) -->
+            {% if form.errors and not form.non_field_errors %}
+                <div class="mb-5 p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-medium flex items-center gap-2.5">
+                    <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm flex-shrink-0"></i>
+                    <span>Tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại.</span>
+                </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="mb-5 p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-700 text-xs font-medium flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm flex-shrink-0"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                <div class="mb-5 p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-medium flex items-center gap-2.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm flex-shrink-0"></i>
+                    <span>Tài khoản <strong>{{ user.username }}</strong> không có quyền truy cập trang quản trị.</span>
+                </div>
+            {% endif %}
+
+            <!-- Form đăng nhập Django Admin -->
+            <form action="{{ app_path }}" method="post" id="login-form" class="space-y-4">
+                {% csrf_token %}
+
+                <!-- Tên đăng nhập -->
+                <div>
+                    <label for="id_username" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Tên đăng nhập
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-regular fa-user text-xs"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="username" 
+                            id="id_username" 
+                            required 
+                            autofocus 
+                            placeholder="Nhập tên đăng nhập admin"
+                            class="w-full text-xs font-medium pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition duration-150"
+                        >
+                    </div>
+                </div>
+
+                <!-- Mật khẩu -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="id_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Mật khẩu
+                        </label>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                        </div>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            id="id_password" 
+                            required 
+                            placeholder="Nhập mật khẩu của bạn"
+                            class="w-full text-xs font-medium pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition duration-150"
+                        >
+                    </div>
+                </div>
+
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <!-- Nút Đăng nhập -->
+                <div class="pt-2">
+                    <button 
+                        type="submit" 
+                        class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-500/25 hover:shadow-brand-500/35 hover:-translate-y-0.5 active:translate-y-0 transition duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        <span>Đăng nhập Quản trị</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Footer link quay lại trang web chính -->
+            <div class="mt-8 pt-5 border-t border-gray-100 text-center">
+                <a href="/" class="text-xs font-semibold text-gray-500 hover:text-brand-600 inline-flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                    Quay lại trang làm việc Cake Crush HR
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

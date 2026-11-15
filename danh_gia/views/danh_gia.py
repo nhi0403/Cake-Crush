@@ -99,6 +99,25 @@ def danh_gia_xac_nhan(request):
             messages.error(request, "Không thể lưu kết quả đánh giá, vui lòng thử lại sau.")
         else:
             request.session.pop(khoa, None)
+            try:
+                from tai_khoan.helpers import thong_bao_nhan_vien, thong_bao_quan_ly
+                xep_loai_str = dict(DanhGia.XEP_LOAI_CHOICES).get(xep_loai, xep_loai)
+                thong_bao_nhan_vien(
+                    nhan_vien=nv,
+                    tieu_de=f"Kết quả đánh giá: {ky.tenky}",
+                    noi_dung=f"Bạn đã được hoàn tất đánh giá kỳ '{ky.tenky}'. Xếp loại: {xep_loai_str} (Điểm TB: {diem_tb}).",
+                    loai="DANH_GIA",
+                    duong_dan=f"/danh-gia/ket-qua/?ky={ky.pk}",
+                )
+                thong_bao_quan_ly(
+                    tieu_de=f"Hoàn thành đánh giá: {nv.tennv}",
+                    noi_dung=f"Đã hoàn thành đánh giá kỳ '{ky.tenky}' cho nhân viên {nv.tennv} ({xep_loai_str}, {diem_tb} điểm).",
+                    loai="DANH_GIA",
+                    duong_dan=f"/danh-gia/ky/{ky.pk}/ket-qua/",
+                    loai_tru_user=request.user,
+                )
+            except Exception:
+                pass
             messages.success(request, "Lưu kết quả đánh giá thành công!")
             return redirect(_url_voi_query("danh_gia:danh_gia_tao", ky=ky.pk))
 

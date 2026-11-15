@@ -55,6 +55,18 @@ def ky_tao(request):
         except DatabaseError:
             messages.error(request, "Không thể lưu kỳ đánh giá, vui lòng thử lại sau.")
         else:
+            try:
+                from tai_khoan.helpers import thong_bao_quan_ly
+                ky_moi = form.instance
+                thong_bao_quan_ly(
+                    tieu_de=f"Kỳ đánh giá mới: {ky_moi.tenky}",
+                    noi_dung=f"Kỳ đánh giá '{ky_moi.tenky}' đã được tạo ({ky_moi.thoigianbatdau.strftime('%d/%m/%Y')} - {ky_moi.thoigianketthuc.strftime('%d/%m/%Y')}).",
+                    loai="DANH_GIA",
+                    duong_dan="/danh-gia/ky/",
+                    loai_tru_user=request.user,
+                )
+            except Exception:
+                pass
             messages.success(request, "Tạo kỳ đánh giá thành công!")
             return redirect("danh_gia:ky_ds")
     return render(request, "danh_gia/ky_form.html", {"form": form})

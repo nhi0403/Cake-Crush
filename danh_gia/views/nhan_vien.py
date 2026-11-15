@@ -58,6 +58,16 @@ def gui_phan_hoi(request, madanhgia):
         except DatabaseError:
             messages.error(request, "Không thể gửi phản hồi, vui lòng thử lại sau")
         else:
+            try:
+                from tai_khoan.helpers import thong_bao_quan_ly
+                thong_bao_quan_ly(
+                    tieu_de=f"Phản hồi đánh giá: {request.nhan_vien.tennv}",
+                    noi_dung=f"Nhân viên {request.nhan_vien.tennv} đã gửi phản hồi cho kết quả đánh giá kỳ '{dg.maky.tenky}'.",
+                    loai="DANH_GIA",
+                    duong_dan=f"/danh-gia/ky/{dg.maky_id}/ket-qua/",
+                )
+            except Exception:
+                pass
             messages.success(request, "Gửi phản hồi thành công!")
             return redirect("danh_gia:ket_qua")
     return render(request, "danh_gia/phan_hoi_form.html", {

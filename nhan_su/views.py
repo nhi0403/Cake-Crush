@@ -102,6 +102,87 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
         else:  # Chỉ chạy khi service lưu thành công.
             messages.success(request, f"{tieu_de} thành công.")  # Gửi thông báo thành công.
 
+            # Gửi thông báo hệ thống tự động
+            try:
+                from tai_khoan.helpers import thong_bao_quan_ly, thong_bao_nhan_vien
+                if isinstance(obj, NhanVien):
+                    if tieu_de == "Thêm nhân viên":
+                        phong_ten = obj.maphong.tenphong if obj.maphong else "Chưa phân bổ"
+                        thong_bao_quan_ly(
+                            tieu_de=f"Nhân viên mới: {obj.tennv}",
+                            noi_dung=f"Đã tiếp nhận nhân viên mới {obj.tennv} ({obj.manv}) vào phòng ban {phong_ten}.",
+                            loai="NHAN_SU",
+                            duong_dan=f"/nhan-su/{obj.pk}/",
+                            loai_tru_user=request.user,
+                        )
+                        thong_bao_nhan_vien(
+                            nhan_vien=obj,
+                            tieu_de="Chào mừng đến với Cake Crush HR",
+                            noi_dung=f"Hồ sơ nhân sự của bạn ({obj.manv}) đã được kích hoạt thành công trên hệ thống.",
+                            loai="NHAN_SU",
+                            duong_dan="/nhan-su/ho-so-cua-toi/",
+                        )
+                    elif tieu_de == "Sửa hồ sơ":
+                        thong_bao_nhan_vien(
+                            nhan_vien=obj,
+                            tieu_de="Hồ sơ nhân sự được cập nhật",
+                            noi_dung="Thông tin hồ sơ nhân sự của bạn vừa được ban quản lý cập nhật.",
+                            loai="NHAN_SU",
+                            duong_dan="/nhan-su/ho-so-cua-toi/",
+                        )
+                    elif tieu_de == "Vô hiệu hóa hồ sơ":
+                        thong_bao_quan_ly(
+                            tieu_de=f"Nhân viên thôi việc: {obj.tennv}",
+                            noi_dung=f"Hồ sơ nhân viên {obj.tennv} ({obj.manv}) đã bị vô hiệu hóa (nghỉ việc).",
+                            loai="NHAN_SU",
+                            duong_dan=f"/nhan-su/{obj.pk}/",
+                            loai_tru_user=request.user,
+                        )
+                elif isinstance(obj, HopDong):
+                    ten_nv = obj.manv.tennv if obj.manv else "Nhân viên"
+                    loai_hd = obj.get_loaihd_display()
+                    if tieu_de == "Thêm hợp đồng":
+                        thong_bao_quan_ly(
+                            tieu_de=f"Hợp đồng lao động mới: {ten_nv}",
+                            noi_dung=f"Đã lập hợp đồng {obj.mahd} ({loai_hd}) cho nhân viên {ten_nv}.",
+                            loai="HOP_DONG",
+                            duong_dan=f"/nhan-su/quan-ly-hop-dong/{obj.pk}/",
+                            loai_tru_user=request.user,
+                        )
+                        thong_bao_nhan_vien(
+                            nhan_vien=obj.manv,
+                            tieu_de=f"Hợp đồng lao động mới: {obj.mahd}",
+                            noi_dung=f"Hợp đồng lao động ({loai_hd}) của bạn đã được lập trên hệ thống.",
+                            loai="HOP_DONG",
+                            duong_dan=f"/nhan-su/hop-dong/{obj.pk}/",
+                        )
+                    elif tieu_de == "Gia hạn hợp đồng":
+                        han_str = obj.ngayhethan.strftime('%d/%m/%Y') if obj.ngayhethan else "vô thời hạn"
+                        thong_bao_quan_ly(
+                            tieu_de=f"Gia hạn hợp đồng: {ten_nv}",
+                            noi_dung=f"Hợp đồng {obj.mahd} của {ten_nv} đã được gia hạn đến ngày {han_str}.",
+                            loai="HOP_DONG",
+                            duong_dan=f"/nhan-su/quan-ly-hop-dong/{obj.pk}/",
+                            loai_tru_user=request.user,
+                        )
+                        thong_bao_nhan_vien(
+                            nhan_vien=obj.manv,
+                            tieu_de=f"Hợp đồng {obj.mahd} đã được gia hạn",
+                            noi_dung=f"Hợp đồng lao động của bạn đã được gia hạn thành công đến ngày {han_str}.",
+                            loai="HOP_DONG",
+                            duong_dan=f"/nhan-su/hop-dong/{obj.pk}/",
+                        )
+                    elif tieu_de == "Sửa hợp đồng":
+                        thong_bao_nhan_vien(
+                            nhan_vien=obj.manv,
+                            tieu_de=f"Cập nhật hợp đồng {obj.mahd}",
+                            noi_dung="Thông tin hợp đồng lao động của bạn đã được điều chỉnh.",
+                            loai="HOP_DONG",
+                            duong_dan=f"/nhan-su/hop-dong/{obj.pk}/",
+                        )
+            except Exception:
+                pass
+
             if url_thanh_cong:  # Form chỉnh sửa trở về đúng trang đã mở nó.
                 return redirect(url_thanh_cong)  # Dùng địa chỉ nội bộ đã kiểm tra trước khi xử lý form.
 

@@ -523,6 +523,13 @@ def run():
         print(f"   [{user_status} | {nv_status} | {hd_status}] {item['manv']} - {item['tennv']} ({item['username']})")
 
     print("\n=== HOAN TAT SEED DU LIEU THANH CONG ===")
+    
+    # Tao them thong bao mau
+    try:
+        from seed_notifications import seed_notifications
+        seed_notifications()
+    except Exception as e:
+        print(f"Loi seed thong bao: {e}")
 
 if __name__ == '__main__':
     run()
