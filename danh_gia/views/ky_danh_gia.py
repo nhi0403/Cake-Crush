@@ -79,6 +79,7 @@ def ky_ket_qua(request, maky):
     ds = (
         DanhGia.objects.filter(maky=ky)
         .select_related("manv")
+        .prefetch_related("phanhoi_set")
         .annotate(tb=Avg("chitietdanhgia__diem"))
         .order_by("manv_id")
     )

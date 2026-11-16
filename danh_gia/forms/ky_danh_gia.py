@@ -8,6 +8,7 @@ from ._chung import FormMixin
 
 
 # ---------- UC-1.1: kỳ đánh giá ----------
+
 class KyDanhGiaForm(FormMixin, forms.ModelForm):
     class Meta:
         model = KyDanhGia
@@ -25,7 +26,27 @@ class KyDanhGiaForm(FormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.chuan_hoa_truong()
-    # Quy tắc bắt đầu < kết thúc nằm ở KyDanhGia.clean() (dùng chung với Admin)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        ten = (cleaned_data.get("tenky") or "").strip()
+        bat_dau = cleaned_data.get("thoigianbatdau")
+        ket_thuc = cleaned_data.get("thoigianketthuc")
+
+        if ten and bat_dau and ket_thuc:
+            trung = KyDanhGia.objects.filter(
+                tenky__iexact=ten,
+                thoigianbatdau=bat_dau,
+                thoigianketthuc=ket_thuc,
+            ).exclude(pk=self.instance.pk).exists()
+
+            if trung:
+                raise ValidationError(
+                    "Kỳ đánh giá này đã tồn tại với cùng tên và thời gian."
+                )
+
+        return cleaned_data
+
 
 
 # ---------- UC-1.2: tiêu chí (formset nhập nhiều tiêu chí cho 1 kỳ) ----------

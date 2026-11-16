@@ -1,10 +1,11 @@
 """UC-2.3 (tra cứu kết quả) và UC-2.4 (gửi phản hồi) dành cho nhân viên."""
+from django.db.models import Q
 from django.contrib import messages
 from django.db import DatabaseError, transaction
 from django.shortcuts import redirect, render
 
 from ..forms import PhanHoiForm
-from ..models import DanhGia, KyDanhGia
+from ..models import DanhGia, KyDanhGia, KhenThuongKyLuat
 from ..permissions import yeu_cau_nhan_vien
 from ..utils import hom_nay
 
@@ -23,6 +24,15 @@ def ket_qua_cua_toi(request):
     else:
         dg = ds[0] if ds else None
     da_co = {d.maky_id for d in ds}
+    lich_su_ktkl = (
+        KhenThuongKyLuat.objects
+        .filter(
+            Q(manv=request.nhan_vien) |
+            Q(manv__isnull=True, madanhgia__manv=request.nhan_vien)
+        )
+        .select_related("madanhgia__maky")
+        .order_by("-ngay", "-maktkl")
+    )
     return render(request, "danh_gia/ket_qua.html", {
         "nhan_vien": request.nhan_vien,
         "ds": ds,
@@ -35,6 +45,7 @@ def ket_qua_cua_toi(request):
             for k in KyDanhGia.objects.all()
             if not dg or k.pk != dg.maky_id
         ],
+        "lich_su_ktkl": lich_su_ktkl,
     })
 
 

@@ -135,7 +135,18 @@ class KhenThuongKyLuat(TuSinhMa):
     LOAI_CHOICES = [("KHENTHUONG", "Khen thưởng"), ("KYLUAT", "Kỷ luật")]
 
     maktkl = models.CharField(max_length=10, primary_key=True, editable=False)
-    madanhgia = models.ForeignKey(DanhGia, on_delete=models.PROTECT)
+    manv = models.ForeignKey(
+        "nhan_su.NhanVien",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+    madanhgia = models.ForeignKey(
+        DanhGia,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     loaiphieu = models.CharField(max_length=20, choices=LOAI_CHOICES)
     hinhthuc = models.CharField(max_length=100)
     ngay = models.DateField()

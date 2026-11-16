@@ -1,19 +1,31 @@
 {% extends "danh_gia/base_danh_gia.html" %}
 {% block page_title %}Danh sách kỳ đánh giá{% endblock %}
 {% block page_sub %}Quản lý kỳ đánh giá, thiết lập tiêu chí và theo dõi kết quả nhân viên.{% endblock %}
-{% block page_action %}<a class="btn btn-primary" href="{% url 'danh_gia:ky_tao' %}">+ Tạo kỳ đánh giá</a>{% endblock %}
+{% block page_action %}
+  <div class="d-flex" style="gap:8px">
+    <a class="btn btn-light border" href="{% url 'danh_gia:trang_chu' %}">← Quay lại</a>
+    <a class="btn btn-primary" href="{% url 'danh_gia:ky_tao' %}">+ Tạo kỳ đánh giá</a>
+  </div>
+{% endblock %}
 {% block dg_content %}
 <div class="card-x">
   <div class="card-head"><span class="ico"></span><h6>Các kỳ đánh giá</h6><span class="chip chip-gray">{{ paginator.count }} kỳ</span></div>
   <form method="get" class="row g-3 mb-3">
-    <div class="col-md-5"><label class="form-label">Tìm kiếm</label>
-      <input class="form-control" name="q" value="{{ q }}" placeholder="Tìm theo tên kỳ đánh giá"></div>
+
+<div class="col-md-5">
+  <label class="form-label">Tìm kiếm</label>
+  <div class="d-flex" style="gap:8px">
+    <input class="form-control" name="q" value="{{ q }}"
+           placeholder="Nhập tên kỳ đánh giá">
+    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+  </div>
+</div>
     <div class="col-md-4"><label class="form-label">Trạng thái thiết lập</label>
       <select class="form-select" name="trang_thai" onchange="this.form.submit()">
         <option value="">Tất cả trạng thái</option>
-        <option value="chua" {% if trang_thai == "chua" %}selected{% endif %}>Chưa thiết lập</option>
-        <option value="du" {% if trang_thai == "du" %}selected{% endif %}>Đủ tiêu chí</option>
-        <option value="co_ket_qua" {% if trang_thai == "co_ket_qua" %}selected{% endif %}>Có kết quả đã lưu</option>
+        <option value="chua" {% if trang_thai =="chua" %}selected{% endif %}>Chưa thiết lập</option>
+        <option value="du" {% if trang_thai =="du" %}selected{% endif %}>Đủ tiêu chí</option>
+        <option value="co_ket_qua" {% if trang_thai =="co_ket_qua" %}selected{% endif %}>Có kết quả đã lưu</option>
       </select></div>
     <div class="col-md-3"><label class="form-label">Năm</label>
       <select class="form-select" name="nam" onchange="this.form.submit()">
