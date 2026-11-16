@@ -1,0 +1,167 @@
+
+{% extends "danh_gia/base_danh_gia.html" %}
+
+{% block page_title %}
+  Chỉnh sửa kết quả đánh giá
+{% endblock %}
+
+{% block page_sub %}
+  {{ dg.manv }} • {{ dg.maky.tenky }}
+{% endblock %}
+
+{% block back_url %}
+  {% url 'danh_gia:danh_gia_chi_tiet' dg.pk %}
+{% endblock %}
+
+{% block dg_content %}
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div class="card-x mb-3">
+
+    <div class="card-head">
+      <span class="ico"></span>
+      <h6>Thông tin đánh giá</h6>
+      <span class="chip chip-blue">
+        Chỉnh sửa
+      </span>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="nho">Nhân viên</div>
+        <div class="fw-semibold">{{ dg.manv }}</div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="nho">Kỳ đánh giá</div>
+        <div>{{ dg.maky.tenky }}</div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="nho">Ngày đánh giá</div>
+        <div>{{ dg.ngaydanhgia|date:"d/m/Y" }}</div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="nho">Điểm TB hiện tại</div>
+        <div class="fw-semibold">
+          {{ dg.diem_trung_binh|floatformat:2 }}
+          — {{ dg.get_xeploai_display }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-x mb-3">
+    <div class="card-head">
+      <span class="ico"></span>
+      <h6>Chỉnh sửa điểm từng tiêu chí</h6>
+      <span class="chip chip-gray">
+        {{ rows|length }} tiêu chí
+      </span>
+    </div>
+
+    <div class="alert alert-info">
+      Điểm hợp lệ từ 0 đến 10, là số nguyên.
+      Khi lưu, hệ thống sẽ tự tính lại điểm trung bình
+      và xếp loại.
+    </div>
+
+    {% for e in form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ e }}
+      </div>
+    {% endfor %}
+
+    {% for row in rows %}
+      <div class="border rounded p-3 mb-3">
+
+        <h6 class="fw-semibold mb-2">
+          {{ forloop.counter }}.
+          {{ row.ct.matieuchi.tentieuchi }}
+        </h6>
+
+        {% if row.ct.matieuchi.mota %}
+          <div class="nho mb-3">
+            {{ row.ct.matieuchi.mota }}
+          </div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">
+              Điểm *
+            </label>
+
+            {{ row.diem_field }}
+
+            {% for e in row.diem_field.errors %}
+              <div class="text-danger small mt-1">
+                {{ e }}
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="col-md-9">
+            <label class="form-label">
+              Nhận xét tiêu chí
+            </label>
+
+            {{ row.nhanxet_field }}
+
+            {% for e in row.nhanxet_field.errors %}
+              <div class="text-danger small mt-1">
+                {{ e }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="mb-3">
+      <label class="form-label">
+        Nhận xét chung của quản lý
+      </label>
+
+      {{ form.nhanxet_chung }}
+
+      {% for e in form.nhanxet_chung.errors %}
+        <div class="text-danger small mt-1">
+          {{ e }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    Việc sửa điểm sẽ cập nhật xếp loại của bản đánh giá
+    hiện tại. Các phản hồi và quyết định khen thưởng,
+    kỷ luật đã lưu vẫn được giữ nguyên.
+  </div>
+
+  <div class="footbar">
+    <span>
+      Kiểm tra kỹ thông tin trước khi lưu thay đổi.
+    </span>
+
+    <div class="d-flex gap-2">
+      <a
+        class="btn btn-light border"
+        href="{% url 'danh_gia:danh_gia_chi_tiet' dg.pk %}"
+      >
+        Hủy
+      </a>
+
+      <button
+        class="btn btn-primary"
+        type="submit"
+      >
+        Lưu thay đổi
+      </button>
+    </div>
+  </div>
+
+</form>
+{% endblock %}

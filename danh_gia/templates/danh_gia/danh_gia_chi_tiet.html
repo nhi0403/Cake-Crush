@@ -1,0 +1,299 @@
+
+{% extends "danh_gia/base_danh_gia.html" %}
+
+{% block page_title %}
+  Chi tiết kết quả đánh giá
+{% endblock %}
+
+{% block page_sub %}
+  {{ dg.manv }} • {{ dg.maky.tenky }}
+{% endblock %}
+
+{% block back_url %}
+  {% url 'danh_gia:ky_ket_qua' dg.maky_id %}
+{% endblock %}
+
+{% block page_action %}
+  <a
+    class="btn btn-primary"
+    href="{% url 'danh_gia:danh_gia_chinh_sua' dg.pk %}"
+  >
+    Chỉnh sửa đánh giá
+  </a>
+{% endblock %}
+
+{% block dg_content %}
+
+<!-- THÔNG TIN ĐÁNH GIÁ -->
+<div class="card-x mb-3">
+  <div class="card-head">
+    <span class="ico"></span>
+    <h6>Thông tin đánh giá</h6>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="nho">Nhân viên</div>
+      <div class="fw-semibold">{{ dg.manv }}</div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="nho">Kỳ đánh giá</div>
+      <div>{{ dg.maky.tenky }}</div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="nho">Ngày đánh giá</div>
+      <div>{{ dg.ngaydanhgia|date:"d/m/Y" }}</div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="nho">Mã kết quả</div>
+      <div>{{ dg.madanhgia }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHI TIẾT ĐIỂM ĐÁNH GIÁ -->
+<div class="card-x mb-3">
+  <div class="card-head">
+    <span class="ico"></span>
+    <h6>Chi tiết điểm đánh giá</h6>
+
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <span class="chip chip-green">
+        {{ dg.get_xeploai_display }}
+      </span>
+
+      <span class="chip chip-blue">
+        {{ chi_tiet|length }} tiêu chí
+      </span>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tiêu chí</th>
+          <th>Điểm</th>
+          <th>Nhận xét</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for ct in chi_tiet %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+
+          <td>
+            <strong>{{ ct.matieuchi.tentieuchi }}</strong>
+
+            {% if ct.matieuchi.mota %}
+              <div class="nho">
+                {{ ct.matieuchi.mota }}
+              </div>
+            {% endif %}
+          </td>
+
+          <td>
+            <strong>{{ ct.diem }}/10</strong>
+          </td>
+
+          <td>
+            {{ ct.nhanxet|default:"Không có nhận xét" }}
+          </td>
+        </tr>
+
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center nho">
+            Chưa có điểm chi tiết.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TỔNG KẾT ĐIỂM VÀ NHẬN XÉT -->
+  <div class="mt-3 p-3 rounded border"
+       style="background:#fff9fb;">
+
+    <div class="nho mb-1">Điểm trung bình</div>
+
+    <div class="fw-bold fs-4 mb-3">
+      {{ dg.diem_trung_binh|floatformat:2 }}/10
+    </div>
+
+    <div class="nho mb-1">Nhận xét chung của quản lý</div>
+
+    <div style="white-space:pre-wrap;overflow-wrap:anywhere;">{{ dg.nhanxet|default:"Chưa có nhận xét." }}</div>
+  </div>
+</div>
+
+<!-- KHEN THƯỞNG / KỶ LUẬT THEO KỲ -->
+<div class="card-x mb-3">
+  <div class="card-head">
+    <span class="ico"></span>
+    <h6>Khen thưởng và kỷ luật theo kỳ</h6>
+
+    <span class="chip chip-gray">
+      {{ ghi_nhan_theo_ky|length }} ghi nhận
+    </span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Loại</th>
+          <th>Hình thức</th>
+          <th>Ngày</th>
+          <th>Lý do</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for k in ghi_nhan_theo_ky %}
+        <tr>
+          <td>
+            {% if k.loaiphieu == "KHENTHUONG" %}
+              <span class="chip chip-green">
+                Khen thưởng
+              </span>
+            {% else %}
+              <span class="chip chip-warn">
+                Kỷ luật
+              </span>
+            {% endif %}
+          </td>
+
+          <td>{{ k.hinhthuc }}</td>
+          <td>{{ k.ngay|date:"d/m/Y" }}</td>
+          <td style="white-space:pre-wrap;overflow-wrap:anywhere;">{{ k.lydo }}</td>
+          <td style="white-space:pre-wrap;overflow-wrap:anywhere;">{{ k.ghichu|default:"—" }}</td>
+        </tr>
+
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center nho">
+            Chưa có khen thưởng hoặc kỷ luật
+            gắn với kết quả đánh giá này.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LỊCH SỬ GHI NHẬN ĐỘT XUẤT -->
+<div class="card-x mb-3">
+  <div class="card-head">
+    <span class="ico"></span>
+    <h6>Lịch sử ghi nhận đột xuất</h6>
+
+    <span class="chip chip-blue">
+      {{ ghi_nhan_dot_xuat|length }} ghi nhận
+    </span>
+  </div>
+
+  <div class="nho mb-3">
+    Các khen thưởng và kỷ luật đột xuất của nhân viên,
+    không gắn trực tiếp với kỳ đánh giá đang xem.
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Loại</th>
+          <th>Hình thức</th>
+          <th>Ngày</th>
+          <th>Lý do</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for k in ghi_nhan_dot_xuat %}
+        <tr>
+          <td>
+            {% if k.loaiphieu == "KHENTHUONG" %}
+              <span class="chip chip-green">
+                Khen thưởng
+              </span>
+            {% else %}
+              <span class="chip chip-warn">
+                Kỷ luật
+              </span>
+            {% endif %}
+          </td>
+
+          <td>{{ k.hinhthuc }}</td>
+          <td>{{ k.ngay|date:"d/m/Y" }}</td>
+          <td style="white-space:pre-wrap;overflow-wrap:anywhere;">{{ k.lydo }}</td>
+          <td style="white-space:pre-wrap;overflow-wrap:anywhere;">{{ k.ghichu|default:"—" }}</td>
+        </tr>
+
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center nho">
+            Nhân viên chưa có ghi nhận đột xuất.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PHẢN HỒI CỦA NHÂN VIÊN -->
+<div class="card-x mb-3">
+  <div class="card-head">
+    <span class="ico"></span>
+    <h6>Phản hồi của nhân viên</h6>
+
+    <span class="chip chip-gray">
+      {{ phan_hoi|length }} phản hồi
+    </span>
+  </div>
+
+  {% for ph in phan_hoi %}
+    <div class="border rounded p-3 mb-2">
+      <div class="nho mb-2">
+        Ngày gửi:
+        {{ ph.ngayphanhoi|date:"d/m/Y" }}
+      </div>
+
+      <div style="white-space:pre-wrap;overflow-wrap:anywhere;">{{ ph.noidung }}</div>
+    </div>
+
+    {% empty %}
+    <div class="nho">
+      Nhân viên chưa gửi phản hồi.
+    </div>
+  {% endfor %}
+</div>
+
+<!-- NÚT THAO TÁC -->
+<div class="d-flex flex-wrap gap-2">
+  <a
+    class="btn btn-light border"
+    href="{% url 'danh_gia:ky_ket_qua' dg.maky_id %}"
+  >
+    ← Quay lại
+  </a>
+
+  <a
+    class="btn btn-primary"
+    href="{% url 'danh_gia:danh_gia_chinh_sua' dg.pk %}"
+  >
+    Chỉnh sửa đánh giá
+  </a>
+</div>
+
+{% endblock %}
