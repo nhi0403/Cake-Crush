@@ -112,7 +112,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de=f"Nhân viên mới: {obj.tennv}",
                             noi_dung=f"Đã tiếp nhận nhân viên mới {obj.tennv} ({obj.manv}) vào phòng ban {phong_ten}.",
                             loai="NHAN_SU",
-                            duong_dan=f"/nhan-su/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_nhan_vien", args=[obj.manv]),
                             loai_tru_user=request.user,
                         )
                         thong_bao_nhan_vien(
@@ -120,7 +120,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de="Chào mừng đến với Cake Crush HR",
                             noi_dung=f"Hồ sơ nhân sự của bạn ({obj.manv}) đã được kích hoạt thành công trên hệ thống.",
                             loai="NHAN_SU",
-                            duong_dan="/nhan-su/ho-so-cua-toi/",
+                            duong_dan=reverse("nhan_su:ho_so_cua_toi"),
                         )
                     elif tieu_de == "Sửa hồ sơ":
                         thong_bao_nhan_vien(
@@ -128,14 +128,14 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de="Hồ sơ nhân sự được cập nhật",
                             noi_dung="Thông tin hồ sơ nhân sự của bạn vừa được ban quản lý cập nhật.",
                             loai="NHAN_SU",
-                            duong_dan="/nhan-su/ho-so-cua-toi/",
+                            duong_dan=reverse("nhan_su:ho_so_cua_toi"),
                         )
                     elif tieu_de == "Vô hiệu hóa hồ sơ":
                         thong_bao_quan_ly(
                             tieu_de=f"Nhân viên thôi việc: {obj.tennv}",
                             noi_dung=f"Hồ sơ nhân viên {obj.tennv} ({obj.manv}) đã bị vô hiệu hóa (nghỉ việc).",
                             loai="NHAN_SU",
-                            duong_dan=f"/nhan-su/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_nhan_vien", args=[obj.manv]),
                             loai_tru_user=request.user,
                         )
                 elif isinstance(obj, HopDong):
@@ -146,7 +146,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de=f"Hợp đồng lao động mới: {ten_nv}",
                             noi_dung=f"Đã lập hợp đồng {obj.mahd} ({loai_hd}) cho nhân viên {ten_nv}.",
                             loai="HOP_DONG",
-                            duong_dan=f"/nhan-su/quan-ly-hop-dong/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_hop_dong", args=[obj.mahd]),
                             loai_tru_user=request.user,
                         )
                         thong_bao_nhan_vien(
@@ -154,7 +154,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de=f"Hợp đồng lao động mới: {obj.mahd}",
                             noi_dung=f"Hợp đồng lao động ({loai_hd}) của bạn đã được lập trên hệ thống.",
                             loai="HOP_DONG",
-                            duong_dan=f"/nhan-su/hop-dong/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_hop_dong_cua_toi", args=[obj.mahd]),
                         )
                     elif tieu_de == "Gia hạn hợp đồng":
                         han_str = obj.ngayhethan.strftime('%d/%m/%Y') if obj.ngayhethan else "vô thời hạn"
@@ -162,7 +162,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de=f"Gia hạn hợp đồng: {ten_nv}",
                             noi_dung=f"Hợp đồng {obj.mahd} của {ten_nv} đã được gia hạn đến ngày {han_str}.",
                             loai="HOP_DONG",
-                            duong_dan=f"/nhan-su/quan-ly-hop-dong/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_hop_dong", args=[obj.mahd]),
                             loai_tru_user=request.user,
                         )
                         thong_bao_nhan_vien(
@@ -170,7 +170,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de=f"Hợp đồng {obj.mahd} đã được gia hạn",
                             noi_dung=f"Hợp đồng lao động của bạn đã được gia hạn thành công đến ngày {han_str}.",
                             loai="HOP_DONG",
-                            duong_dan=f"/nhan-su/hop-dong/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_hop_dong_cua_toi", args=[obj.mahd]),
                         )
                     elif tieu_de == "Sửa hợp đồng":
                         thong_bao_nhan_vien(
@@ -178,7 +178,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                             tieu_de=f"Cập nhật hợp đồng {obj.mahd}",
                             noi_dung="Thông tin hợp đồng lao động của bạn đã được điều chỉnh.",
                             loai="HOP_DONG",
-                            duong_dan=f"/nhan-su/hop-dong/{obj.pk}/",
+                            duong_dan=reverse("nhan_su:chi_tiet_hop_dong_cua_toi", args=[obj.mahd]),
                         )
             except Exception:
                 pass
@@ -440,5 +440,27 @@ def chi_tiet_hop_dong_cua_toi(request, mahd):  # Xem một hợp đồng cá nh�
         request, "nhan_su/hop_dong_detail.html",  # Template sẽ tạo ở bước 6.
         {"hop_dong": _bo_sung_trang_thai(hd), "co_quyen_sua": False, "chinh_sach": getattr(settings, "NHAN_SU_CHINH_SACH", {})},  # Ẩn nút quản lý.
     )  # Quyền ghi vẫn được kiểm tra riêng tại view quản lý và service.
+
+
+def dieu_huong_nhan_su(request):
+    """Điều hướng an toàn cho URL /nhan-su/ để không bao giờ bị lỗi 404."""
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        return redirect("nhan_su:danh_sach_nhan_vien")
+    return redirect("nhan_su:ho_so_cua_toi")
+
+
+def dieu_huong_chi_tiet_nv(request, manv):
+    """Điều hướng an toàn cho /nhan-su/<manv>/."""
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        return redirect("nhan_su:chi_tiet_nhan_vien", manv=manv)
+    return redirect("nhan_su:ho_so_cua_toi")
+
+
+def dieu_huong_hop_dong(request, mahd):
+    """Điều hướng an toàn cho /nhan-su/hop-dong/<mahd>/ hoặc /nhan-su/quan-ly-hop-dong/<mahd>/."""
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        return redirect("nhan_su:chi_tiet_hop_dong", mahd=mahd)
+    return redirect("nhan_su:chi_tiet_hop_dong_cua_toi", mahd=mahd)
+
 
 

@@ -39,7 +39,7 @@
     --primary-fg: #ffffff !important;
     --body-bg: #faf7f8 !important;
     --body-fg: #334155 !important;
-    --header-bg: linear-gradient(135deg, #c72c5e 0%, #e13b78 100%) !important;
+    --header-bg: #BE2552 !important;
     --header-color: #ffffff !important;
     --header-link-color: #ffffff !important;
     --breadcrumbs-bg: #fdeaf1 !important;
@@ -73,10 +73,10 @@ body {
 
 /* 3. Header Hồng Cake Crush */
 #header, header#header {
-    background: linear-gradient(135deg, #c72c5e 0%, #e13b78 100%) !important;
+    background: #BE2552 !important;
     color: #ffffff !important;
     padding: 12px 28px !important;
-    box-shadow: 0 4px 16px rgba(199, 44, 94, 0.2) !important;
+    box-shadow: 0 4px 16px rgba(190, 37, 82, 0.2) !important;
     border-bottom: none !important;
 }
 
@@ -510,7 +510,13 @@ textarea:focus, select:focus {
         <!-- END Content -->
       </main>
     </div>
-    <footer id="footer">{% block footer %}{% endblock %}</footer>
+    <footer id="footer">
+      {% block footer %}
+      <div style="padding: 14px 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1e6eb; background: #ffffff;">
+        © 2026 Cake Crush HR — Trung tâm Quản trị Dữ liệu & Hệ thống
+      </div>
+      {% endblock %}
+    </footer>
 </div>
 
 <!-- SVGs -->

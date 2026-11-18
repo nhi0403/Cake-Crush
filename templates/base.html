@@ -734,6 +734,17 @@
             padding: 24px 36px 36px 36px;
         }
 
+        /* ================= APP FOOTER ================= */
+        .app-footer {
+            padding: 15px 36px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid var(--border-color);
+            background-color: #ffffff;
+            margin-top: auto;
+        }
+
         @media (max-width: 900px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -970,6 +981,11 @@
             {% endfor %} {# Kết thúc thông báo. #}
             {% block content %}{% endblock %} {# Giữ vị trí chèn nội dung trang con. #}
         </main> {# Đóng vùng nội dung. #}
+
+        <!-- Page Footer -->
+        <footer class="app-footer">
+            <span>© 2026 Cake Crush HR — Hệ thống Quản trị Nhân sự chuỗi tiệm bánh Cake Crush</span>
+        </footer>
     </div>
 
     <!-- Mobile Drawer Toggle Script -->
@@ -1100,6 +1116,17 @@
                     const targetUrl = this.getAttribute('data-url');
                     const isUnread = this.classList.contains('unread');
 
+                    function chuyenHuongThongBao(targetUrl) {
+                        if (!targetUrl || targetUrl === '#' || targetUrl === 'javascript:void(0)') {
+                            return;
+                        }
+                        if (targetUrl === '/nhan-su/' || targetUrl === '/nhan-su') {
+                            window.location.href = '/quan-ly/nhan-vien/';
+                            return;
+                        }
+                        window.location.href = targetUrl;
+                    }
+
                     if (isUnread) {
                         // Đánh dấu là đã đọc
                         fetch(`/api/thong-bao/${id}/doc/`, {
@@ -1114,18 +1141,14 @@
                             if (resData.status === 'success') {
                                 this.classList.remove('unread');
                                 capNhatBadge(resData.con_chua_doc);
-                                if (targetUrl && targetUrl !== '#' && targetUrl !== 'javascript:void(0)') {
-                                    window.location.href = targetUrl;
-                                }
+                                chuyenHuongThongBao(targetUrl);
                             }
                         })
                         .catch(() => {
-                            if (targetUrl && targetUrl !== '#') window.location.href = targetUrl;
+                            chuyenHuongThongBao(targetUrl);
                         });
                     } else {
-                        if (targetUrl && targetUrl !== '#' && targetUrl !== 'javascript:void(0)') {
-                            window.location.href = targetUrl;
-                        }
+                        chuyenHuongThongBao(targetUrl);
                     }
                 });
             });

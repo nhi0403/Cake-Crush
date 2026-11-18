@@ -103,7 +103,7 @@ def tao_khoa(request):
                     tieu_de=f"Khóa đào tạo mới: {khoa.tenkhoa}",
                     noi_dung=f"Khóa đào tạo '{khoa.tenkhoa}' ({khoa.makhoa}) đã được tạo. Thời gian: {khoa.ngaybatdau.strftime('%d/%m/%Y')} - {khoa.ngayketthuc.strftime('%d/%m/%Y')}.",
                     loai="DAO_TAO",
-                    duong_dan=f"/dao-tao/khoa/{khoa.makhoa}/",
+                    duong_dan=reverse("dao_tao:chi_tiet_khoa", args=[khoa.makhoa]),
                     loai_tru_user=request.user,
                 )
             except Exception:
@@ -187,13 +187,13 @@ def phan_cong_dao_tao(request):
                     tieu_de=f"Phân công đào tạo: {phan_cong.khoadaotao.tenkhoa}",
                     noi_dung=f"Bạn đã được phân công tham gia khóa đào tạo '{phan_cong.khoadaotao.tenkhoa}'. Vui lòng xem thông tin chi tiết và tham gia đúng hạn.",
                     loai="DAO_TAO",
-                    duong_dan="/dao-tao/chuong-trinh-cua-toi/",
+                    duong_dan=reverse("dao_tao:chuong_trinh_cua_toi"),
                 )
                 thong_bao_quan_ly(
                     tieu_de=f"Phân công đào tạo: {phan_cong.nhanvien.tennv}",
                     noi_dung=f"Đã phân công nhân viên {phan_cong.nhanvien.tennv} vào khóa '{phan_cong.khoadaotao.tenkhoa}'.",
                     loai="DAO_TAO",
-                    duong_dan=f"/dao-tao/theo-doi/?nhanvien={phan_cong.nhanvien.pk}&khoa={phan_cong.khoadaotao.pk}",
+                    duong_dan=f"{reverse('dao_tao:theo_doi_dao_tao')}?nhanvien={phan_cong.nhanvien.pk}&khoa={phan_cong.khoadaotao.pk}",
                     loai_tru_user=request.user,
                 )
             except Exception:
@@ -304,13 +304,13 @@ def cap_nhat_ket_qua_dao_tao(request):
                     tieu_de=f"Kết quả đào tạo: {pc.khoadaotao.tenkhoa}",
                     noi_dung=f"Kết quả khóa đào tạo '{pc.khoadaotao.tenkhoa}' của bạn đã được cập nhật: {ketqua_text}.",
                     loai="DAO_TAO",
-                    duong_dan="/dao-tao/ket-qua-cua-toi/",
+                    duong_dan=reverse("dao_tao:ket_qua_dao_tao_cua_toi"),
                 )
                 thong_bao_quan_ly(
                     tieu_de=f"Kết quả đào tạo: {pc.nhanvien.tennv}",
                     noi_dung=f"Đã ghi nhận kết quả khóa '{pc.khoadaotao.tenkhoa}' cho nhân viên {pc.nhanvien.tennv}: {ketqua_text}.",
                     loai="DAO_TAO",
-                    duong_dan=f"/dao-tao/theo-doi/?nhanvien={pc.nhanvien.pk}&khoa={pc.khoadaotao.pk}",
+                    duong_dan=f"{reverse('dao_tao:theo_doi_dao_tao')}?nhanvien={pc.nhanvien.pk}&khoa={pc.khoadaotao.pk}",
                     loai_tru_user=request.user,
                 )
             except Exception:

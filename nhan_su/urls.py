@@ -30,4 +30,11 @@ urlpatterns = [  # Danh sách URL của phân hệ.
     path("ho-so-cua-toi/", views.ho_so_cua_toi, name="ho_so_cua_toi"),  # Hồ sơ cá nhân.
     path("hop-dong-cua-toi/", views.hop_dong_cua_toi, name="hop_dong_cua_toi"),  # Hợp đồng cá nhân.
     path("hop-dong-cua-toi/<str:mahd>/", views.chi_tiet_hop_dong_cua_toi, name="chi_tiet_hop_dong_cua_toi"),  # Chi tiết hợp đồng sở hữu.
+
+    # Các URL dự phòng/điều hướng tương thích để thông báo không bị 404
+    path("nhan-su/", views.dieu_huong_nhan_su, name="dieu_huong_nhan_su"),
+    path("nhan-su/<str:manv>/", views.dieu_huong_chi_tiet_nv, name="dieu_huong_chi_tiet_nv"),
+    path("nhan-su/ho-so-cua-toi/", views.ho_so_cua_toi, name="dieu_huong_ho_so_cua_toi"),
+    path("nhan-su/quan-ly-hop-dong/<str:mahd>/", views.chi_tiet_hop_dong, name="dieu_huong_ql_hd"),
+    path("nhan-su/hop-dong/<str:mahd>/", views.dieu_huong_hop_dong, name="dieu_huong_hd"),
 ]  # Kết thúc danh sách URL.

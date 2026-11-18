@@ -21,7 +21,7 @@
     --body-loud-color: #0f172a;
     
     --header-color: #ffffff;
-    --header-bg: linear-gradient(135deg, #c72c5e 0%, #e13b78 100%);
+    --header-bg: #BE2552;
     --header-link-color: #ffffff;
     
     --breadcrumbs-fg: #64748b;
@@ -71,7 +71,7 @@
     --body-fg: #f1f5f9;
     --border-color: #3f2632;
     --breadcrumbs-bg: #272730;
-    --header-bg: linear-gradient(135deg, #8c1a3e 0%, #c72c5e 100%);
+    --header-bg: #BE2552;
 }
 
 /* ================= TOÀN BỘ PHÔNG CHỮ ================= */
@@ -86,10 +86,10 @@ body {
 
 /* ================= HEADER THANH ĐIỀU HƯỚNG CHÍNH ================= */
 #header {
-    background: var(--header-bg) !important;
+    background: #BE2552 !important;
     color: #ffffff !important;
     padding: 14px 32px !important;
-    box-shadow: 0 4px 20px rgba(199, 44, 94, 0.15) !important;
+    box-shadow: 0 4px 20px rgba(190, 37, 82, 0.15) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -464,4 +464,14 @@ ul.messagelist li {
     font-weight: 600 !important;
     margin-bottom: 14px !important;
     box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+}
+
+/* ================= FOOTER ================= */
+#footer {
+    padding: 14px 20px !important;
+    text-align: center !important;
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+    border-top: 1px solid #f1e6eb !important;
+    background: #ffffff !important;
 }

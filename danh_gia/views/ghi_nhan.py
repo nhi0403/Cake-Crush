@@ -88,35 +88,32 @@ def xu_ly_ghi_nhan(request, loai, cfg):
                     thong_bao_quan_ly,
                 )
 
-                ten_loai = (
-                    "Khen thưởng"
-                    if loai == "KHENTHUONG"
-                    else "Kỷ luật"
-                )
+                if loai == "KHENTHUONG":
+                    tb_nv_tieu_de = "Quyết định khen thưởng"
+                    tb_nv_noi_dung = f"Chúc mừng! Bạn đã nhận được quyết định khen thưởng: {obj.hinhthuc} ({obj.lydo})."
+                    tb_ql_tieu_de = f"Khen thưởng nhân viên: {nv.tennv}"
+                    tb_ql_noi_dung = f"Đã ghi nhận khen thưởng cho nhân viên {nv.tennv} ({nv.manv}): {obj.hinhthuc}."
+                    ql_duong_dan = "/danh-gia/khen-thuong/"
+                else:
+                    tb_nv_tieu_de = "Quyết định kỷ luật"
+                    tb_nv_noi_dung = f"Thông báo: Bạn có quyết định kỷ luật về việc: {obj.hinhthuc} ({obj.lydo})."
+                    tb_ql_tieu_de = f"Kỷ luật nhân viên: {nv.tennv}"
+                    tb_ql_noi_dung = f"Đã ghi nhận hình thức kỷ luật đối với nhân viên {nv.tennv} ({nv.manv}): {obj.hinhthuc}."
+                    ql_duong_dan = "/danh-gia/ky-luat/"
 
                 thong_bao_nhan_vien(
                     nhan_vien=nv,
-                    tieu_de=f"Quyết định {ten_loai.lower()}",
-                    noi_dung=(
-                        f"Bạn có quyết định {ten_loai.lower()} mới: "
-                        f"{obj.hinhthuc} ({obj.lydo})."
-                    ),
+                    tieu_de=tb_nv_tieu_de,
+                    noi_dung=tb_nv_noi_dung,
                     loai="DANH_GIA",
                     duong_dan="/danh-gia/ket-qua/",
                 )
 
                 thong_bao_quan_ly(
-                    tieu_de=f"{ten_loai}: {nv.tennv}",
-                    noi_dung=(
-                        f"Đã ghi nhận {ten_loai.lower()} "
-                        f"cho nhân viên {nv.tennv}: {obj.hinhthuc}."
-                    ),
+                    tieu_de=tb_ql_tieu_de,
+                    noi_dung=tb_ql_noi_dung,
                     loai="DANH_GIA",
-                    duong_dan=(
-                        cfg["url"]
-                        if cfg["url"].startswith("/")
-                        else reverse(cfg["url"])
-                    ),
+                    duong_dan=ql_duong_dan,
                     loai_tru_user=request.user,
                 )
 
