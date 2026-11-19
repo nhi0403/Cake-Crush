@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError, PermissionDenied
+from django.core.exceptions import ValidationError
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -8,7 +8,7 @@ from nhan_su.models import NhanVien, PhongBan
 from .models import KhoaDaoTao, PhanCongDaoTao, TrangThaiKhoa, TienDoDaoTao, KetQuaDaoTao
 from .services import (
     tao_ma_khoa,
-    lay_thong_ke_dao_tao,
+
     phan_cong_nhan_vien,
     xac_nhan_hoan_thanh,
     cap_nhat_ket_qua_dao_tao,

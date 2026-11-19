@@ -92,7 +92,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Nếu cần kết nối Cloudflare D1 khi deploy, đặt USE_D1=True trong .env
 USE_D1 = os.environ.get('USE_D1', 'False').lower() in ('true', '1', 'yes')
 
-if USE_D1 and os.environ.get('CF_API_TOKEN'):
+import sys
+IS_TESTING = 'test' in sys.argv
+
+if USE_D1 and os.environ.get('CF_API_TOKEN') and not IS_TESTING:
     DATABASES = {
         'default': {
             'ENGINE': 'django_d1',
