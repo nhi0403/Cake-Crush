@@ -128,7 +128,7 @@ body {
 }
 
 #header #user-tools {
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     font-weight: 500 !important;
     color: rgba(255, 255, 255, 0.9) !important;
     display: flex !important;
@@ -249,7 +249,7 @@ div.breadcrumbs a:hover {
     font-weight: 600 !important;
     padding: 4px 10px !important;
     border-radius: 8px !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 4px !important;
@@ -342,14 +342,14 @@ div.breadcrumbs a:hover {
     color: var(--primary) !important;
     font-weight: 700 !important;
     padding: 12px 16px !important;
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
 }
 
 #changelist-filter a {
     color: #475569 !important;
-    font-size: 12.5px !important;
+    font-size: 13px !important;
 }
 
 #changelist-filter li.selected a {
@@ -361,7 +361,7 @@ div.breadcrumbs a:hover {
     background: #fdfafb !important;
     color: #475569 !important;
     font-weight: 700 !important;
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     border-bottom: 1px solid var(--border-color) !important;
     padding: 12px 16px !important;
 }
@@ -380,7 +380,7 @@ div.breadcrumbs a:hover {
 ul.object-tools li a {
     background: var(--primary) !important;
     border-radius: 10px !important;
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     font-weight: 600 !important;
     padding: 8px 16px !important;
     box-shadow: 0 2px 6px rgba(199, 44, 94, 0.2) !important;
@@ -470,7 +470,7 @@ ul.messagelist li {
 #footer {
     padding: 14px 20px !important;
     text-align: center !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     color: #94a3b8 !important;
     border-top: 1px solid #f1e6eb !important;
     background: #ffffff !important;

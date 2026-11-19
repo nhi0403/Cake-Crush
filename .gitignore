@@ -6,3 +6,5 @@ db.sqlite3
 .idea/
 Cake-Crush/
 /docs/
+
+staticfiles/
