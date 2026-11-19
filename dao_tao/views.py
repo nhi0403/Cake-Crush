@@ -1,3 +1,5 @@
+import calendar
+from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -47,10 +49,30 @@ def danh_sach_khoa(request):
 
     thoi_gian = request.GET.get("thoi_gian", "").strip()
     hom_nay = timezone.localdate()
-    if thoi_gian == "thang_nay":
-        ds = ds.filter(ngaybatdau__year=hom_nay.year, ngaybatdau__month=hom_nay.month)
-    elif thoi_gian == "nam_nay":
-        ds = ds.filter(ngaybatdau__year=hom_nay.year)
+    if thoi_gian:
+        if "-" in thoi_gian:
+            parts = thoi_gian.split("-")
+            if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                nam = int(parts[0])
+                thang = int(parts[1])
+                _, last_day = calendar.monthrange(nam, thang)
+                dau_thang = date(nam, thang, 1)
+                cuoi_thang = date(nam, thang, last_day)
+                ds = ds.filter(ngaybatdau__lte=cuoi_thang, ngayketthuc__gte=dau_thang)
+        elif thoi_gian == "thang_nay":
+            _, last_day = calendar.monthrange(hom_nay.year, hom_nay.month)
+            ds = ds.filter(
+                ngaybatdau__lte=date(hom_nay.year, hom_nay.month, last_day),
+                ngayketthuc__gte=date(hom_nay.year, hom_nay.month, 1),
+            )
+        elif thoi_gian == "nam_nay":
+            ds = ds.filter(ngaybatdau__year=hom_nay.year)
+    
+
+
+
+
+
 
     # Phân trang (mặc định 10 bản ghi/trang)
     paginator = Paginator(ds, 10)
@@ -413,8 +435,20 @@ def xem_noi_dung_dao_tao(request):
 
     if request.method == "POST":
         if phan_cong_hien_tai and phan_cong_hien_tai.tiendo != TienDoDaoTao.DA_HOAN_THANH:
-            services.xac_nhan_hoan_thanh(phan_cong_hien_tai)
-            messages.success(request, f"Đã xác nhận hoàn thành khóa {phan_cong_hien_tai.khoadaotao.tenkhoa}!")
+            trang_thai_khoa = phan_cong_hien_tai.khoadaotao.tinh_trang_thai_tu_dong()
+            if trang_thai_khoa != TrangThaiKhoa.DANG_DIEN_RA:
+                messages.error(
+                    request,
+                    f"Khóa đào tạo '{phan_cong_hien_tai.khoadaotao.tenkhoa}' đang ở trạng thái '{trang_thai_khoa}'. Nhân viên chỉ được cập nhật kết quả khi khóa đào tạo đang diễn ra."
+                )
+            else:
+                try:
+                    services.xac_nhan_hoan_thanh(phan_cong_hien_tai)
+                    messages.success(request, f"Đã xác nhận hoàn thành khóa {phan_cong_hien_tai.khoadaotao.tenkhoa}!")
+        
+                except ValueError as e:
+                    messages.error(request, str(e))
+
             return redirect(f"{reverse('dao_tao:xem_noi_dung_dao_tao')}?khoa={phan_cong_hien_tai.khoadaotao_id}")
 
     return render(

@@ -72,6 +72,14 @@ def phan_cong_nhan_vien(nhan_vien, khoa_dao_tao):
 @transaction.atomic
 def xac_nhan_hoan_thanh(phan_cong):
     """Nhân viên tự xác nhận hoàn thành nội dung đào tạo."""
+    khoa = phan_cong.khoadaotao
+    trang_thai = khoa.tinh_trang_thai_tu_dong()
+    if trang_thai != TrangThaiKhoa.DANG_DIEN_RA:
+        raise ValueError("Chỉ có thể xác nhận hoàn thành khi khóa đào tạo đang diễn ra.")
+    if khoa.trangthai != trang_thai:
+        khoa.trangthai = trang_thai
+        khoa.save(update_fields=["trangthai"])
+
     phan_cong.tiendo = TienDoDaoTao.DA_HOAN_THANH
     phan_cong.ngayhoanthanh = timezone.localdate()
     phan_cong.save(update_fields=["tiendo", "ngayhoanthanh", "ngaycapnhat"])

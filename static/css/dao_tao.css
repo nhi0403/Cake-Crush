@@ -832,3 +832,79 @@
     color: #94a3b8;
     text-align: center;
 }
+
+
+/* --- LỌC THỜI GIAN THEO THÁNG (MONTH PICKER) --- */
+input[type="month"].dt-filter-select {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4b5563;
+    background: #ffffff;
+    border: 1px solid #ebdbe4;
+    border-radius: 9999px;
+    padding: 8px 16px;
+    min-width: 155px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="month"].dt-filter-select:focus {
+    outline: none;
+    border-color: #df3477;
+    box-shadow: 0 0 0 3px rgba(223, 52, 119, 0.1);
+}
+
+input[type="month"].dt-filter-select::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+input[type="month"].dt-filter-select::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.dt-filter-month-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dt-month-clear {
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.dt-month-clear:hover {
+    color: #df3477;
+}
+
+.dt-reset-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #df3477;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: #fff4f8;
+    border: 1px solid #f9d3e3;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.dt-reset-filter:hover {
+    background: #fde8f1;
+    color: #c91c60;
+}

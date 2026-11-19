@@ -7,8 +7,8 @@
     <!-- Header -->
     <div class="hr-head" style="margin-bottom: 24px;">
         <div>
-            <h1 style="font-size: 26px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">Đào tạo nội bộ</h1>
-            <p style="color: #64748b; font-size: 13.5px; font-weight: 500;">Quản lý khóa đào tạo và theo dõi kết quả học tập của nhân viên</p>
+            <h1 style="font-size: 26px; font-weight: 800; color: #1e293b; margin: 0;">Đào tạo nội bộ</h1>
+            
         </div>
     </div>
 
@@ -80,11 +80,20 @@
             </select>
 
             <!-- Lọc Thời gian -->
-            <select name="thoi_gian" class="dt-filter-select" onchange="this.form.submit()">
-                <option value="">Thời gian</option>
-                <option value="thang_nay" {% if thoi_gian == "thang_nay" %}selected{% endif %}>Tháng này</option>
-                <option value="nam_nay" {% if thoi_gian == "nam_nay" %}selected{% endif %}>Năm này</option>
-            </select>
+            <div class="dt-filter-month-wrap">
+                <input type="month" name="thoi_gian" value="{{ thoi_gian }}" class="dt-filter-select" onchange="this.form.submit()" title="Lọc theo tháng/năm">
+                {% if thoi_gian %}
+                    <a href="?{% if q %}q={{ q }}&{% endif %}{% if trang_thai %}trang_thai={{ trang_thai }}{% endif %}" class="dt-month-clear" title="Xóa lọc thời gian">&times;</a>
+                {% endif %}
+            </div>
+            {% if q or trang_thai or thoi_gian %}
+                <a href="{% url 'dao_tao:danh_sach_khoa' %}" class="dt-reset-filter" title="Đặt lại bộ lọc">
+                    <i class="fa-solid fa-rotate-left"></i> Đặt lại
+                </a>
+            {% endif %}
+
+
+
         </div>
 
         <a href="{% url 'dao_tao:tao_khoa' %}" class="btn-pink-pill">
@@ -177,17 +186,17 @@
             {% if page_obj.paginator.num_pages > 1 %}
             <div style="display: flex; gap: 6px;">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if trang_thai %}&trang_thai={{ trang_thai }}{% endif %}" class="btn-cancel" style="padding: 6px 12px; border: 1px solid #ebdbe4;">&lt;</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if trang_thai %}&trang_thai={{ trang_thai }}{% endif %}{% if thoi_gian %}&thoi_gian={{ thoi_gian }}{% endif %}" class="btn-cancel" style="padding: 6px 12px; border: 1px solid #ebdbe4;">&lt;</a>
                 {% endif %}
                 {% for p in page_obj.paginator.page_range %}
                     {% if p == page_obj.number %}
                         <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #df3477; color: #fff; border-radius: 8px; font-weight: 700;">{{ p }}</span>
                     {% else %}
-                        <a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% if trang_thai %}&trang_thai={{ trang_thai }}{% endif %}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #ebdbe4; border-radius: 8px; color: #64748b; text-decoration: none;">{{ p }}</a>
+                        <a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% if trang_thai %}&trang_thai={{ trang_thai }}{% endif %}{% if thoi_gian %}&thoi_gian={{ thoi_gian }}{% endif %}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #ebdbe4; border-radius: 8px; color: #64748b; text-decoration: none;">{{ p }}</a>
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if trang_thai %}&trang_thai={{ trang_thai }}{% endif %}" class="btn-cancel" style="padding: 6px 12px; border: 1px solid #ebdbe4;">&gt;</a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if trang_thai %}&trang_thai={{ trang_thai }}{% endif %}{% if thoi_gian %}&thoi_gian={{ thoi_gian }}{% endif %}" class="btn-cancel" style="padding: 6px 12px; border: 1px solid #ebdbe4;">&gt;</a>
                 {% endif %}
             </div>
             {% endif %}
