@@ -15,6 +15,8 @@
 .hr-card h2 { font-size: 16px; font-weight: 700; color: var(--text-heading); } /* Tiêu đề từng phần. */
 .hr-muted { color: var(--text-muted); font-size: 13px; line-height: 1.7; } /* Chữ mô tả phụ. */
 .hr-back { display: inline-block; margin-bottom: 10px; font-size: 13px; color: #807780; text-decoration: none; } /* Liên kết quay lại. */
+.btn-top-back { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; color: #df3477; border: 1px solid #ebdbe4; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 8px; text-decoration: none; transition: all 0.2s ease; }
+.btn-top-back:hover { background: #fff5f8; border-color: #df3477; color: #c91c60; }
 .hr-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; } /* Nhóm nút. */
 .hr-btn { display: inline-flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 16px; min-height: 36px; border: 1px solid transparent; border-radius: 7px; background: var(--primary-pink); color: #fff; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; } /* Nút chính màu hồng. */
 .hr-btn:hover { background: var(--primary-pink-hover); } /* Phản hồi khi trỏ chuột. */

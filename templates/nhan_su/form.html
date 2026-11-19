@@ -2,7 +2,7 @@
 {% block title %}{{ tieu_de }} | Cake Crush{% endblock %} {# Tiêu đề biểu mẫu. #}
 {% block content %} {# Bắt đầu nội dung. #}
 {% if form.lydonghiviec %}<div class="hr-modal-shell"><section class="hr-card hr-modal" role="dialog" aria-modal="true" aria-labelledby="form-title"> {# Xác nhận dạng hộp thoại theo mockup. #}
-{% else %}<a class="hr-back" href="{{ url_huy }}">‹ Quay lại</a><div class="hr-head"><h1>{{ tieu_de }}</h1></div><section class="hr-card hr-edit-card">{% endif %} {# Tiêu đề gọn và nút quay lại đúng trang mở form. #}
+{% else %}<div class="hr-head"><h1>{{ tieu_de }}</h1><a href="{{ url_huy }}" class="btn-top-back"><i class="fa-solid fa-arrow-right"></i> Quay lại</a></div><section class="hr-card hr-edit-card">{% endif %} {# Tiêu đề gọn và nút quay lại đúng trang mở form. #}
     {% if form.lydonghiviec %}<h1 id="form-title"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>Vô hiệu hóa hồ sơ nhân viên</h1><p class="hr-muted hr-confirm-copy">Chuyển <strong>{{ form.nhan_vien.tennv }} ({{ form.nhan_vien.manv }})</strong> sang “Đã nghỉ việc”. Tài khoản liên kết sẽ bị khóa, hợp đồng còn hạn sẽ hết hiệu lực. Lịch sử được giữ nguyên.</p>{% endif %} {# Nêu đầy đủ tác động trước khi gửi. #}
     <form method="post" class="hr-form"> {# Chỉ POST mới ghi dữ liệu. #}
         {% csrf_token %} {# Bảo vệ yêu cầu gửi form. #}
