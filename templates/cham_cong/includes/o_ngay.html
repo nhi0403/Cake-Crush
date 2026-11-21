@@ -1,0 +1,38 @@
+{# Ô ngày dd/mm/yyyy dùng chung: gõ tay hoặc bấm biểu tượng lịch để chọn. Tham số: nhan, ten, gia_tri. #}
+<label>{{ nhan }}<span class="cc-date"> {# Khung chứa ô nhập và nút lịch. #}
+    <input type="text" name="{{ ten }}" value="{{ gia_tri }}" placeholder="dd/mm/yyyy" inputmode="numeric" maxlength="10" autocomplete="off" pattern="\d{2}/\d{2}/\d{4}" title="Nhập ngày theo dạng dd/mm/yyyy" data-o-ngay> {# Ô gõ tay, được gửi lên máy chủ. #}
+    <button type="button" class="cc-date-btn" aria-label="Chọn ngày từ lịch"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button> {# Nút mở lịch. #}
+    <input type="date" class="cc-date-picker" tabindex="-1" aria-hidden="true"> {# Lịch gốc của trình duyệt; không có name nên không gửi lên. #}
+</span></label>
+<script>
+// Ô ngày dd/mm/yyyy: vừa gõ tay (tự chèn dấu /), vừa chọn từ lịch của trình duyệt.
+(function () {
+    const sangIso = (chuoi) => { // dd/mm/yyyy → yyyy-mm-dd cho ô lịch.
+        const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(chuoi.trim()); // Tách ngày, tháng, năm.
+        return m ? `${m[3]}-${m[2]}-${m[1]}` : ''; // Sai dạng thì để trống.
+    };
+    const sangVn = (iso) => { // yyyy-mm-dd → dd/mm/yyyy cho ô gõ tay.
+        const [n, t, d] = iso.split('-'); // Tách năm, tháng, ngày.
+        return iso ? `${d}/${t}/${n}` : ''; // Xóa lịch thì ô cũng trống.
+    };
+    [document.currentScript.previousElementSibling.querySelector('.cc-date')].forEach((khung) => { // Ô ngày ngay phía trên script này.
+        const oGo = khung.querySelector('[data-o-ngay]'); // Ô gõ tay.
+        const oLich = khung.querySelector('.cc-date-picker'); // Ô lịch ẩn.
+        khung.querySelector('.cc-date-btn').addEventListener('click', () => { // Bấm biểu tượng lịch.
+            oLich.value = sangIso(oGo.value); // Lịch mở đúng ngày đang nhập.
+            if (oLich.showPicker) { try { oLich.showPicker(); return; } catch (e) { /* Trình duyệt chặn thì dùng cách dưới. */ } }
+            oLich.focus(); oLich.click(); // Trình duyệt cũ.
+        });
+        oLich.addEventListener('change', () => { // Chọn xong một ngày.
+            oGo.value = sangVn(oLich.value); // Ghi lại theo dạng dd/mm/yyyy.
+            oGo.dispatchEvent(new Event('change', { bubbles: true })); // Báo cho các script khác (nếu có).
+        });
+        oGo.addEventListener('input', (e) => { // Gõ tay: tự chèn dấu /.
+            if (e.inputType && e.inputType.startsWith('delete')) return; // Đang xóa thì không chèn.
+            const so = oGo.value.replace(/\D/g, '').slice(0, 8); // Chỉ giữ tối đa 8 chữ số.
+            oGo.value = so.length > 4 ? `${so.slice(0, 2)}/${so.slice(2, 4)}/${so.slice(4)}` // 21/11/2026.
+                : so.length > 2 ? `${so.slice(0, 2)}/${so.slice(2)}` : so; // 21/11 hoặc 21.
+        });
+    });
+})();
+</script>
