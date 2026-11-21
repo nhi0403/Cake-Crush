@@ -144,7 +144,8 @@ def trang_quan_ly(request):
                 qs_recent = qs_cc.filter(gio_checkin__isnull=False).select_related('manv__maphong').order_by('-gio_checkin')[:4]
                 for cc in qs_recent:
                     nv = getattr(cc, 'manv', None)
-                    phong_ten = getattr(getattr(nv, 'maphong', None), 'tenphong', 'Chưa phân phòng')
+                    mp = getattr(nv, 'maphong', None)
+                    phong_ten = getattr(mp, 'tenphongban', getattr(mp, 'tenphong', str(mp))) if mp else 'Chưa phân phòng'
                     checkin_gan_day.append({
                         'ten': getattr(nv, 'tennv', 'Nhân viên'),
                         'ma': getattr(nv, 'manv', ''),

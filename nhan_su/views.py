@@ -107,7 +107,7 @@ def _xu_ly_form(request, lop_form, ham_luu, tieu_de, url_huy, *, url_thanh_cong=
                 from tai_khoan.helpers import thong_bao_quan_ly, thong_bao_nhan_vien
                 if isinstance(obj, NhanVien):
                     if tieu_de == "Thêm nhân viên":
-                        phong_ten = obj.maphong.tenphong if obj.maphong else "Chưa phân bổ"
+                        phong_ten = getattr(obj.maphong, 'tenphongban', getattr(obj.maphong, 'tenphong', str(obj.maphong))) if obj.maphong else "Chưa phân bổ"
                         thong_bao_quan_ly(
                             tieu_de=f"Nhân viên mới: {obj.tennv}",
                             noi_dung=f"Đã tiếp nhận nhân viên mới {obj.tennv} ({obj.manv}) vào phòng ban {phong_ten}.",
