@@ -301,6 +301,7 @@ def _hien_thi_hop_dong(request, ds, co_quyen_sua):  # Hiển thị danh sách h�
     dieu_kien["SAP_HET_HAN"] = dieu_kien["DANGHIEULUC"] & Q(  # Cảnh báo chỉ dành cho hợp đồng còn hiệu lực.
         ngayhethan__range=(hom_nay + timedelta(days=1), hom_nay + timedelta(days=30))
     )  # Giữ đúng khoảng 1–30 ngày theo đặc tả.
+    dieu_kien["CANH_BAO"] = dieu_kien["HETHAN"] | dieu_kien["SAP_HET_HAN"]  # Nhóm hết hạn và sắp hết hạn
 
     q = request.GET.get("q", "").strip()  # Lấy từ khóa tìm kiếm.
 
@@ -316,7 +317,9 @@ def _hien_thi_hop_dong(request, ds, co_quyen_sua):  # Hiển thị danh sách h�
 
     so_sap_het_han = ds.filter(dieu_kien["SAP_HET_HAN"]).count()  # Banner khớp từ khóa và loại đang lọc.
 
-    trang_thai = request.GET.get("trang_thai", "")  # Lấy trạng thái được chọn.
+    trang_thai = request.GET.get("trang_thai", "").strip()  # Lấy trạng thái được chọn.
+    if request.GET.get("canh_bao") == "1" or trang_thai.upper() in ("CANH_BAO", "CANHBAO"):
+        trang_thai = "CANH_BAO"
 
     if trang_thai in dieu_kien:  # Nếu trạng thái hợp lệ...
         ds = ds.filter(dieu_kien[trang_thai])  # ...áp dụng điều kiện ngày tương ứng.
@@ -336,6 +339,7 @@ def _hien_thi_hop_dong(request, ds, co_quyen_sua):  # Hiển thị danh sách h�
         "trang_thai_hop_dong": [  # Danh mục cho ô lọc trạng thái.
             *HopDong.TrangThai.choices,  # Bốn trạng thái đã khai báo trong model.
             ("SAP_HET_HAN", "Sắp hết hạn"),  # Thêm lựa chọn lọc cảnh báo.
+            ("CANH_BAO", "Hết hạn & Sắp hết hạn"),
         ],  # Kết thúc danh mục trạng thái.
     })  # Kết thúc bổ sung context.
 

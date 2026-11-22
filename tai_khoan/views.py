@@ -186,7 +186,7 @@ def trang_quan_ly(request):
                 f"{exp_col}__isnull": False,
                 f"{exp_col}__gte": today,
                 f"{exp_col}__lte": ngay_gioi_han
-            })
+            }).order_by(exp_col)
             if bo_phan_obj:
                 qs_hd = qs_hd.filter(manv__maphong=bo_phan_obj)
             hop_dong_sap_het_han = qs_hd.count()
