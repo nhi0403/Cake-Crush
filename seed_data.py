@@ -502,23 +502,43 @@ def run():
             nv_status = "Cap nhat NhanVien"
 
         # C. HopDong
-        ma_hd = f"HD{item['manv'][2:]}"  # Vi du: HD001, HD002,...
-        hd = HopDong.objects.filter(mahd=ma_hd).first()
-        if not hd:
-            hd = HopDong(
-                mahd=ma_hd,
-                manv=nv,
-                loaihd=HopDong.Loai.KHONG_XAC_DINH,
-                ngayky=item["ngayvaolam"],
-                ngaybatdau=item["ngayvaolam"],
-                ngayhethan=None,
-                luongcoban=item["luong"],
-                trangthai=HopDong.TrangThai.DANG_HIEU_LUC
-            )
-            hd.save()
-            hd_status = "Tao moi HD"
+        is_ql = item.get("is_staff", False) or item.get("is_superuser", False) or item["username"] in ["admin", "quanly"]
+        nhom = "QL" if is_ql else "NV"
+        prefix = f"HD-{nhom}-"
+
+        old_ma_hd = f"HD{item['manv'][2:]}"  # Vi du: HD001, HD002,...
+        hd_cu = HopDong.objects.filter(mahd=old_ma_hd).first()
+
+        if hd_cu:
+            existing_codes = set(HopDong.objects.filter(mahd__startswith=prefix).values_list("mahd", flat=True))
+            idx = 1
+            while f"{prefix}{idx:03d}" in existing_codes:
+                idx += 1
+            new_code = f"{prefix}{idx:03d}"
+            HopDong.objects.filter(mahd=old_ma_hd).update(mahd=new_code)
+            hd_status = "Cap nhat HD"
         else:
-            hd_status = "Da co HD"
+            hd = HopDong.objects.filter(manv=nv).first()
+            if not hd:
+                existing_codes = set(HopDong.objects.filter(mahd__startswith=prefix).values_list("mahd", flat=True))
+                idx = 1
+                while f"{prefix}{idx:03d}" in existing_codes:
+                    idx += 1
+                new_code = f"{prefix}{idx:03d}"
+                hd = HopDong(
+                    mahd=new_code,
+                    manv=nv,
+                    loaihd=HopDong.Loai.KHONG_XAC_DINH,
+                    ngayky=item["ngayvaolam"],
+                    ngaybatdau=item["ngayvaolam"],
+                    ngayhethan=None,
+                    luongcoban=item["luong"],
+                    trangthai=HopDong.TrangThai.DANG_HIEU_LUC
+                )
+                hd.save()
+                hd_status = "Tao moi HD"
+            else:
+                hd_status = "Da co HD"
 
         print(f"   [{user_status} | {nv_status} | {hd_status}] {item['manv']} - {item['tennv']} ({item['username']})")
 
