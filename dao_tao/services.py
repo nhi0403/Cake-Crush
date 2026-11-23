@@ -20,11 +20,14 @@ def tao_ma_khoa():
 def dong_bo_trang_thai_tat_ca_khoa():
     """Cập nhật lại trạng thái các khóa học dựa trên ngày hiện tại nếu khóa không bị gán cứng."""
     hom_nay = timezone.localdate()
+    can_cap_nhat = []
     for khoa in KhoaDaoTao.objects.all():
         tt_moi = khoa.tinh_trang_thai_tu_dong(hom_nay)
         if khoa.trangthai != tt_moi:
             khoa.trangthai = tt_moi
-            khoa.save(update_fields=["trangthai"])
+            can_cap_nhat.append(khoa)
+    if can_cap_nhat:
+        KhoaDaoTao.objects.bulk_update(can_cap_nhat, ["trangthai"])
 
 
 def lay_thong_ke_dao_tao():

@@ -18,7 +18,7 @@ from .forms import (
     PhanCongDaoTaoForm,
 )
 from .models import KetQuaDaoTao, KhoaDaoTao, PhanCongDaoTao, TienDoDaoTao, TrangThaiKhoa
-from .permissions import la_quan_ly, yeu_cau_quan_ly
+from .permissions import yeu_cau_quan_ly
 from . import services
 
 
@@ -31,9 +31,8 @@ from . import services
 def danh_sach_khoa(request):
     """Màn hình 1: Danh sách khóa đào tạo & 4 thẻ thống kê (Quản lý)."""
     yeu_cau_quan_ly(request.user)
-    services.dong_bo_trang_thai_tat_ca_khoa()
 
-    # Thống kê
+    # Thống kê (đã bao gồm đồng bộ trạng thái tự động)
     thong_ke = services.lay_thong_ke_dao_tao()
 
     # Lọc & Tìm kiếm
